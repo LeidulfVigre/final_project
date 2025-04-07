@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h3>Welcome to LSMDb</h3>
+{% endblock %}
+
+{% block main %}
+    <p class = "title">{{movie_name}}</p>
+    <p class = "score">{{score}}</p>
+    <p class = "duration">{{duration}}</p>
+    <p class = "genre">{{genre}}</p>
+    <p class = "age">{{age_limit}}</p>
+    <p class = "release">{{release_date}}</p>
+    <p class = "synopsis">{{synopsis}}</p>
+    <p class = "country">{{country_of_origin}}</p>
+    <p class = "language">{{movie_language}}</p>
+
+    <h2>Reviews</h2>
+    <ul>
+        {% for review in reviews %}
+            <li>
+                <p class = "likes">Likes: {{review.likes}}</p>
+                <p class = "dislikes">Dislikes: {{review.dislikes}}</p>
+                <p class = "review_text">{{review.review_text}}</p>
+                <p class = "review_date">{{review.review_date}}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+
