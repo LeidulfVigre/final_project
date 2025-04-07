@@ -7,7 +7,14 @@
         <!--Legg til javascript fil her etterpå-->
     </head>
     <body>
-        <header id = "header">{% block header %}Default header{% endblock %}</header>
+        <header id = "header">
+            {% block header %}
+                <button class = "basic_button" id = "home_button">HOME</button>
+                <form action="movie_site" method="post">
+                    <label for="movie_name">Search for movie:</label>
+                    <input type="text" name="movie_name" maxlength="50">
+                </form>
+            {% endblock %}</header>
         <main id = "main">{% block main %}Default main {% endblock %}</main>
         <footer id = "footer">{% block footer %}Default footer{% endblock %}</footer>
     </body>
