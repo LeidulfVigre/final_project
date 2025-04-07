@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>App</title>
+        <script src = "{{url_for('static', filename='script.js')}}"></script>
+        <!--Legg til javascript fil her etterpå-->
+    </head>
+    <body>
+        <header id = "header">{% block header %}Default header{% endblock %}</header>
+        <main id = "main">{% block main %}Default main {% endblock %}</main>
+        <footer id = "footer">{% block footer %}Default footer{% endblock %}</footer>
+    </body>
+</html>
