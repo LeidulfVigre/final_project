@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h3>Create a user</h3>
+{% endblock %}
+
+{% block main %}
+<form action="user_registration" method="post">
+    <label for="register_username">Username: </label>
+    <input type="text" id="register_username" name="registered_username"><br>
+    <label for="first_name">First Name: </label>
+    <input type="text" id="first_name" name="first_name"><br>
+    <label for="last_name">Last Name: </label>
+    <input type="text" id="last_name" name="last_name"><br>
+    <label for="register_password">Password: </label>
+    <input type="password" id="register_password" name="registered_password"><br>
+    <label type="password" for="check_register_password">Re-enter password: </label>
+    <input type="password" id="check_register_password" name="check_registered_password" oninput="check_alike_password()"><br>
+    <p id="password_ok">Password ok:</p>
+    <input type="submit" value="Submit">
+</form>
+
+{% if username_already_exists %}
+<p>This username already exists. Try a new one</p>
+{% endblock %}
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

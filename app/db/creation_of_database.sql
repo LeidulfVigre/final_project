@@ -39,9 +39,7 @@ create table User(
     Last_Name VARCHAR(50) NOT NULL,
     User_Type CHAR(1) NOT NULL CHECK (User_Type IN ('N', 'A')),
     Reviewer_Score INT,
-    E_Mail VARCHAR(50) NOT NULL UNIQUE,
     Password_Hash VARCHAR(150) NOT NULL,
-    Salt VARCHAR(150) NOT NULL
 );
 
 create table Rating(

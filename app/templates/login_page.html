@@ -1,4 +1,21 @@
 {% extends "base.html"%}
 
+{% block header %}
+{% endblock %}
 
 {% block main%}
+<h3>Log into your account here:</h3>
+<form action="login" method="post">
+    <label for="username_form">Username</label><br>
+    <input type="text" id="username_form" name="username" value = {{username}}><br>
+    <label for="us">Password</label><br>
+    <input type="text" id="password_form" name="password" value = {{password}}>
+    <input type="submit" value="Submit">
+</form>
+
+{% if failed_login %}
+    <p>Wrong username or password. Try again</p>
+{% endblock%}
+
+{% block footer %}
+{% endblock %}
