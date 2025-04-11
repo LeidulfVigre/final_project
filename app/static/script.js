@@ -15,16 +15,34 @@ function check_alike_password(){
     var password_field = document.getElementById("register_password");
     var check_password_field = document.getElementById("check_register_password");
     var password_ok = document.getElementById("password_ok"); 
+    var submit_registration = document.getElementById("submit_registration");
 
     if(password_field.value === check_password_field.value){
         password_ok.innerHTML = "<p>Password ok: OK</p>";
+        submit_registration.disabled = false;
     }else{
         password_ok.innerHTML = "<p>Password ok: Not alike</p>";
-        console.log("JEG BLIR KJØRT!")
+        submit_registration.disabled = true;
     }
-    console.log("Passord field: ", password_field.value);
-    console.log("re enter: ", check_password_field.value);
 }
+
+async function handle_choose_review_rating_both(username, value){
+    try{
+        let url = "/login?username="+ username +"&choice="+value;
+        const response = await fetch(url);
+        if (response.status !== 200) {
+            console.log("Problem getting data from server: ", response.status);
+        }else{
+            let content_bottom = document.getElementById("content_bottom");
+            
+            
+
+        }
+    }catch(error){
+        console.log("Problem connecting to server: ", error);
+    }
+}
+
 
 // HTML elements here
 //var login_button = document.getElementById("login_button");

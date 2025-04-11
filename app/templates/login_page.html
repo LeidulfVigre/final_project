@@ -1,6 +1,7 @@
 {% extends "base.html"%}
 
 {% block header %}
+<h2>LSMDb</h2>
 {% endblock %}
 
 {% block main%}
@@ -15,6 +16,7 @@
 
 {% if failed_login %}
     <p>Wrong username or password. Try again</p>
+{% endif %}
 {% endblock%}
 
 {% block footer %}

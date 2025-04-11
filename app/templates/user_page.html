@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div id = "user_information">
+        <h2>{{username}} Review Score: {{reviewer_score.score}} Status: {{reviewer_score.status}}</h2>
+        {% if owner %}
+        <button id = "settings_button" onclick="">
+            Settings
+        </button>
+    </div>
+    <div id = "content_of_page">
+        <div id="content_top">
+            <h3>Reviews and ratings</h3>
+
+            <label for="choose_review_rating">Show content: </label>
+            <select id="choose_review_rating" name="review_rating_both" onchange="handle_review_rating_both('{{username}}', this.value)">
+                <option value="1">Review</option>
+                <option value="2">Rating</option>
+                <option value="3">Review and rating</option>
+            </select>
+            
+            <label for="order_by">Order By: </label>
+            <select id="order_by" name="order_by">
+                <option value="1">Date (old-new)</option>
+                <option value="2">Date (new-old)</option>
+                <option value="3">Score (high-low)</option>
+                <option value="4">Score (low-high)</option>
+            </select>
+
+            <label for="select_genre">Select genre: </label>
+            <select id="select_genre" name="select_genre">
+                <option value="1">All genres</option>
+                <option value="2">Romance</option>
+                <option value="3">Thriller</option>
+                <option value="4">Adventure</option>
+                <option value="5">Comedy</option>
+                <option value="6">Action</option>
+            </select>
+        </div>
+
+        <div id="content_bottom">
+            {% for review_rating in reviews_and_ratings %}
+            <div class="review_and_ratings">
+                <h3 class="content_title"><a href="/movie_site/{{review_rating[1]}}">{{review_rating[1]}}</a> Date: {{review_rating[7]}}</h3>
+                {% if review_rating[2] %}
+                <h2>{{ review_rating[2]}}</h2>
+                <h3>Score: {{review_rating[6]}}</h3>
+                <h3>Likes: {{review_rating[3]}} Dislikes: {{review_rating[4]}}</h3>
+                <p>{{review_rating[5]}}</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="review_and_ratings">
+                <p>No reviews or ratings yet. Get started!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+<!--
+    viktig om content!!! På server siden henter jeg relevant data fra databasen. Legger så dette inn i et dictionary. 
+    Dictionariet holder på filmtittelen, tittelen på reviewet hvis det finnes, score, likes/dislikes hvis det finnes, dato, synopsis hvis det finnes
+
+    Når en endrer på dropdown menyen
+
+-->
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

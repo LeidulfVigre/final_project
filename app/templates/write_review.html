@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% endblock %}
+
+{% block main %}
+    <h3>Write your review here:</h3>
+    <form action="review" method="post">
+        <label for="review_form">Review</label><br>
+        <textarea id="review_form" name="review_text" rows="6" cols="60">{{ review_text }}</textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}
+{% block footer %}
+{% endblock %}

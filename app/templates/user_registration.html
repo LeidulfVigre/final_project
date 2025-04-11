@@ -7,24 +7,31 @@
 {% block main %}
 <form action="user_registration" method="post">
     <label for="register_username">Username: </label>
-    <input type="text" id="register_username" name="registered_username"><br>
+    <input type="text" id="register_username" name="registered_username" required><br>
+
     <label for="first_name">First Name: </label>
-    <input type="text" id="first_name" name="first_name"><br>
+    <input type="text" id="first_name" name="first_name" required><br>
+
     <label for="last_name">Last Name: </label>
-    <input type="text" id="last_name" name="last_name"><br>
+    <input type="text" id="last_name" name="last_name" required><br>
+
     <label for="register_password">Password: </label>
-    <input type="password" id="register_password" name="registered_password"><br>
+    <input type="password" id="register_password" name="registered_password" pattern=".{8,}"
+    title="Must include 8 or more letters" required><br>
+
     <label type="password" for="check_register_password">Re-enter password: </label>
-    <input type="password" id="check_register_password" name="check_registered_password" oninput="check_alike_password()"><br>
+    <input type="password" id="check_register_password" name="check_registered_password" 
+    title="Must include 8 or more letters" oninput="check_alike_password()" pattern=".{8,}" required><br>
+
     <p id="password_ok">Password ok:</p>
-    <input type="submit" value="Submit">
+    <input type="submit" id="submit_registration" disabled="disabled" value="Submit">
 </form>
 
 {% if username_already_exists %}
 <p>This username already exists. Try a new one</p>
+{% endif %}
 {% endblock %}
 
-{% endblock %}
 
 {% block footer %}
 {% endblock %}

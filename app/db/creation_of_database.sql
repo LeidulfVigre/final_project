@@ -61,6 +61,7 @@ create table Review(
     User_ID INT NOT NULL,
     Movie_ID INT NOT NULL,
     Rating_ID INT NOT NULL,
+    Review_Title VARCHAR(50) NOT NULL,
     foreign key (User_ID) references User(User_ID), 
     foreign key (Movie_ID) references Movie(Movie_ID),
     foreign key (Rating_ID) references Rating(Rating_ID)
