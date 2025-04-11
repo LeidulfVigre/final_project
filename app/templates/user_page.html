@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 
+<!--
+    jeg må sende med den relevante querien som jeg 
+    her er gimmicket: 
+    jeg skal kunne endre på 
+
+    eks: 
+
+    for hvert query som skal brukes må man sende med data om sorting stil, eks:old-new/new-old,
+    og alltid ta med sjanger,  
+    
+    BTW FOR MOVIE SITE SKAL MAN KUN KUNNE SORTERE MELLOM DATO OG REVIEW SCORE. IKKE NOE ANNET!!!! MAN HENTER HER REVIEWS OG RATINGS UANSETT HVA!!!! 
+-->
+
 {% block main %}
     <div id = "user_information">
         <h2>{{username}} Review Score: {{reviewer_score.score}} Status: {{reviewer_score.status}}</h2>
@@ -13,23 +26,27 @@
             <h3>Reviews and ratings</h3>
 
             <label for="choose_review_rating">Show content: </label>
-            <select id="choose_review_rating" name="review_rating_both" onchange="handle_review_rating_both('{{username}}', this.value)">
+            <select id="choose_review_rating" name="review_rating_both" onchange="handle_sorting('{{username}}')">
                 <option value="1">Review</option>
                 <option value="2">Rating</option>
-                <option value="3">Review and rating</option>
+                <option value="3" selected>Review and rating</option>
             </select>
             
-            <label for="order_by">Order By: </label>
-            <select id="order_by" name="order_by">
-                <option value="1">Date (old-new)</option>
-                <option value="2">Date (new-old)</option>
-                <option value="3">Score (high-low)</option>
-                <option value="4">Score (low-high)</option>
+            <label for="order_by_date">Order By Date: </label>
+            <select id="order_by_date" name="order_by_date" onchange="handle_sorting('{{username}}')">
+                <option value="1" selected>New to old</option>
+                <option value="2">Old to new</option>
+            </select>
+
+            <label for="order_by_score">Order By Score: </label>
+            <select id="order_by_score" name="order_by_score" onchange="handle_sorting('{{username}}')">
+                <option value="1" selected>High to low</option>
+                <option value="2">Low to high</option>
             </select>
 
             <label for="select_genre">Select genre: </label>
-            <select id="select_genre" name="select_genre">
-                <option value="1">All genres</option>
+            <select id="select_genre" name="select_genre" onchange="handle_sorting('{{username}}')">
+                <option value="1" selected>All genres</option>
                 <option value="2">Romance</option>
                 <option value="3">Thriller</option>
                 <option value="4">Adventure</option>

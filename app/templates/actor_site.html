@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% endblock %}
+
+{% block main %}
+    <div id="content_top"></div>
+
+    <div id="content_bottom">
+        {% if movies %}
+            <div class="actor_name">
+                <h2>{{ movies[0][1] }} {{ movies[0][2] }}</h2>
+                <h3>
+                    Bio:<br>
+                    Firstname: {{ movies[0][1] }}, Lastname: {{ movies[0][2] }}<br>
+                    Date of birth: {{ movies[0][3] }}<br>
+                    Height: {{ movies[0][4] }} cm<br>
+                </h3>
+                <h3>Movies acted in:</h3>
+                <ul>
+                    {% for movie in movies %}
+                    <li><a href="/movie_site/{{ movie[6] }}">{{ movie[0] }} as {{ movie [5] }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p>No actor data found.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

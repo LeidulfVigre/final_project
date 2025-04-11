@@ -99,18 +99,18 @@ def userPage(username):
         # This query uses a left join to get all ratings, even those without a review attached to it, along with the reviews.
         # After the left join, the table from the left join, joins with the movie table to get the title of the movie for the rating/review.
         query = """
-            SELECT m.Movie_Title,   0
-                   m.Movie_ID,      1
-                   rv.Review_Title, 2
-                   rv.Likes,        3
-                   rv.Dislikes,     4
-                   rv.Review_Text,  5
-                   r.Rating_Score,  6
-                   r.Rating_Date    7
+            SELECT m.Movie_Title,   
+                   m.Movie_ID,      
+                   rv.Review_Title, 
+                   rv.Likes,        
+                   rv.Dislikes,     
+                   rv.Review_Text,  
+                   r.Rating_Score,  
+                   r.Rating_Date    
             FROM Rating r 
             LEFT JOIN Review rv ON r.Rating_ID = rv.Rating_ID
             INNER JOIN Movie m ON r.Movie_ID = m.Movie_ID
-            WHERE Rating.User_ID = %s
+            WHERE r.User_ID = %s
             ORDER BY r.Rating_Date DESC;
         """
         cursor = connection.cursor()
@@ -183,7 +183,7 @@ def user_registration():
         else:
             return render_template("user_registration.html", username_already_exists=True)
 
-@app.route("/handle_review_rating_both", methods=["GET"])
+@app.route("/handle_sorting", methods=["GET"])
 def handle_review_rating_both():
     if request.method == "GET":
         username = request.args.get("username")
@@ -196,15 +196,14 @@ def handle_review_rating_both():
         if not connection:
             return "Internal server error", 500
         
-        if choice == "1":
-            query = """
-        
-"""
-
-        query = """
-
-        """
+        query = functions.get_review_rating_both(choice)
         cursor = connection.cursor()
+        cursor.execute(query, (username,))
+
+        data = cursor.fetchall()
+
+        if 
+
 
 
 @app.route("/write_review", methods=["POST", "GET"])
@@ -242,6 +241,87 @@ def write_review():
         connection.close()
 
         return "Review submitted!"
+    
+@app.route("/actor_site/<int:actor_id>", methods=["GET"])
+def actor_site(actor_id):
+    connection = db.get_connection()
+    if not connection:
+        return "Database connection failed", 500
+
+    if request.method == "GET":
+
+        query = """
+            SELECT  m.Movie_Title,
+                    a.Actor_First_Name,
+                    a.Actor_Last_Name,
+                    a.Date_Of_Birth,
+                    a.Height,
+                    ma.Character_Name,
+                    m.Movie_ID
+            FROM Movie m
+            INNER JOIN Actor_And_Movie ma
+            ON m.Movie_ID = ma.Movie_ID
+            INNER JOIN Actor a
+            ON a.Actor_ID = ma.Actor_ID
+            WHERE a.Actor_ID = %s
+        """
+
+        cursor = connection.cursor()
+        #cursor.execute(query, (actor_id,))
+        #actor_movies = cursor.fetchall()
+
+        actor_movies = [
+            ("Snow White", "Gal", "Gadot", "1985-30-04", 178, "Witch", 1),
+            ("Justice League", "Gal", "Gadot", "1985-30-04", 178, "Wonder Woman", 2)
+        ]
+
+        print("DEBUG actor_movies:", actor_movies)  # <-- add this
+
+        cursor.close()
+        connection.close()
+
+        return render_template("actor_site.html", movies=actor_movies)
+    
+@app.route("/director_site/<int:director_id>", methods=["GET"])
+def director_site(director_id):
+    connection = db.get_connection()
+    if not connection:
+        return "Database connection failed", 500
+
+    if request.method == "GET":
+
+        query = """
+            SELECT  m.Movie_Title,
+                    d.Director_First_Name,
+                    d.Director_Last_Name,
+                    d.Date_Of_Birth,
+                    d.Height,
+                    m.Movie_ID
+            FROM Movie m
+            INNER JOIN Director_And_Movie md
+            ON m.Movie_ID = md.Movie_ID
+            INNER JOIN Director d
+            ON d.Director_ID = md.Director_ID
+            WHERE d.Director_ID = %s
+        """
+
+        cursor = connection.cursor()
+        #cursor.execute(query, (director_id,))
+        #director_movies = cursor.fetchall()
+
+        director_movies = [
+            ("Ready Player One", "Steven", "Spielberg", "1946-18-12", 172, 1),
+            ("Jaws", "Steven", "Spielberg", "1946-18-12", 172, 2)
+        ]
+
+        print("DEBUG director_movies:", director_movies)  # <-- add this
+
+        cursor.close()
+        connection.close()
+
+        return render_template("director_site.html", movies=director_movies)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

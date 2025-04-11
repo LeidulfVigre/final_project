@@ -26,7 +26,14 @@ function check_alike_password(){
     }
 }
 
-async function handle_choose_review_rating_both(username, value){
+/* 
+OBS MÅ LEGGE PÅ EVENT LISTENERS!!!! DA KAN JEG ENKELT SJEKKE NÅVÆRENDE VERDIER FOR HVERT VALG OG SÅ SENDE DETTE TIL SERVEREN
+SERVEREN VIL DA BYGGE QUERIET UT I FRA HVILKE VALG SOM ER TATT!!!!!!!!!!!
+*/
+
+async function handle_sorting(username){
+    
+
     try{
         let url = "/login?username="+ username +"&choice="+value;
         const response = await fetch(url);
