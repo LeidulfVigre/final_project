@@ -40,51 +40,57 @@ def generate_new_user_id():
     
 
 # Function for getting relevant query from 
-def get_review_rating_both(choice, order_by_date, order_by_score, genre):
+def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, select_genre):
 
     # fjern urelevante kommentarer etterpå!!
     # bygger basically queriet ut i fra hvilke valg som er tatt
     # dette betyr også at jeg bare trenger et partial template for å oppdatere review og rating feltet!!
+    # HENT UT REVIEW ID OG RATING ID. LEGG TIL DISSE I URL-en TIL EDIT KNAPPENE I USER_PAGE TEMPLATE OG PARTIAL TEMPLATE!!!!
     query = "" # tom trist string i starten
-    if choice == "1":
-        query +="""SELECT m.Movie_Title,
-                       m.Movie_ID,
-                       rv.Review_Title,
-                       rv.Likes,
-                       rv.Dislikes,
-                       rv.Review_Text,
+    if choose_review_rating == "1":
+        query +="""SELECT m.Movie_Title, 
+                       m.Movie_ID,       
+                       rv.Review_ID,     
+                       rv.Review_Title,  
+                       rv.Likes,         
+                       rv.Dislikes,      
+                       rv.Review_Text,   
+                       r.Rating_ID,      
                        r.Rating_Score,
-                       r.Rating_Date
+                       r.Rating_Date     
                 FROM Review rv 
                 INNER JOIN Rating r
                 ON rv.Rating_ID = r.Rating_ID
                 INNER JOIN Movie m 
                 ON rv.Movie_ID = m.Movie_ID
                 WHERE rv.User_ID = %s"""
-    elif choice == "2":
-        query +=  """SELECT m.Movie_Title,
-                    m.Movie_ID,
-                    r.Rating_Score,
+    elif choose_review_rating == "2":
+        query +=  """SELECT m.Movie_Title, 
+                    m.Movie_ID,      
+                    r.Rating_ID,     
+                    r.Rating_Score,  
                     r.Rating_Date
             FROM Rating r
             INNER JOIN Movie m
             ON r.Movie_ID = m.Movie_ID
             WHERE r.User_ID = %s"""
-    elif choice == "3":
-        query += """SELECT m.Movie_Title,   
-                   m.Movie_ID,      
-                   rv.Review_Title, 
-                   rv.Likes,        
-                   rv.Dislikes,     
-                   rv.Review_Text,  
-                   r.Rating_Score,  
-                   r.Rating_Date    
+    elif choose_review_rating == "3":
+        query += """SELECT m.Movie_Title, 
+                   m.Movie_ID,            
+                   rv.Review_ID,          
+                   rv.Review_Title,       
+                   rv.Likes,              
+                   rv.Dislikes,           
+                   rv.Review_Text,        
+                   r.Review_ID             
+                   r.Rating_Score,        
+                   r.Rating_Date 
             FROM Rating r 
             LEFT JOIN Review rv ON r.Rating_ID = rv.Rating_ID
             INNER JOIN Movie m ON r.Movie_ID = m.Movie_ID
             WHERE r.User_ID = %s"""
     
-    if genre != "1":
+    if select_genre != "1":
         query += " AND m.Genre = %s"
     
     query += " ORDER BY r.Rating_Date"

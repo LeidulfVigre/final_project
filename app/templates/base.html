@@ -9,11 +9,13 @@
     <body>
         <header id = "header">
             {% block header %}
-                <button class = "basic_button" id = "home_button">HOME</button>
+                <button class = "basic_button" id = "home_button">LSMDb</button>
                 <form action="movie_site" method="post">
                     <label for="movie_name">Search for movie:</label>
-                    <input type="text" name="movie_name" maxlength="50">
+                    <input type="text" name="movie_name" maxlength="50" id="search_bar" oninput="search_for_movie()">
                 </form>
+                <div id="search_results">
+                </div>
             {% endblock %}</header>
         <main id = "main">{% block main %}Default main {% endblock %}</main>
         <footer id = "footer">{% block footer %}Default footer{% endblock %}</footer>

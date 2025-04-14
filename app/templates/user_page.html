@@ -47,23 +47,28 @@
             <label for="select_genre">Select genre: </label>
             <select id="select_genre" name="select_genre" onchange="handle_sorting('{{username}}')">
                 <option value="1" selected>All genres</option>
-                <option value="2">Romance</option>
-                <option value="3">Thriller</option>
-                <option value="4">Adventure</option>
-                <option value="5">Comedy</option>
-                <option value="6">Action</option>
+                <option value="romance">Romance</option>
+                <option value="thriller">Thriller</option>
+                <option value="adventure">Adventure</option>
+                <option value="comedy">Comedy</option>
+                <option value="action">Action</option>
             </select>
         </div>
 
         <div id="content_bottom">
             {% for review_rating in reviews_and_ratings %}
             <div class="review_and_ratings">
-                <h3 class="content_title"><a href="/movie_site/{{review_rating[1]}}">{{review_rating[1]}}</a> Date: {{review_rating[7]}}</h3>
-                {% if review_rating[2] %}
-                <h2>{{ review_rating[2]}}</h2>
-                <h3>Score: {{review_rating[6]}}</h3>
-                <h3>Likes: {{review_rating[3]}} Dislikes: {{review_rating[4]}}</h3>
-                <p>{{review_rating[5]}}</p>
+                <h3 class="content_title"><a href="/movie_site/{{review_rating[1]}}">{{review_rating[0]}}</a> Date: {{review_rating[9]}}</h3>
+                {% if owner and review_rating[3] %}
+                <button onclick="window.location.href='/edit_review/{{review_rating[2]}}'">Edit</button>
+                {% elif owner %}
+                <button onclick="window.location.href='/edit_rating/{{review_rating[7]}}'">Edit</button>
+                {% endif %}
+                {% if review_rating[3] %}
+                <h2>{{ review_rating[3]}}</h2>
+                <h3>Score: {{review_rating[8]}}</h3>
+                <h3>Likes: {{review_rating[4]}} Dislikes: {{review_rating[5]}}</h3>
+                <p>{{review_rating[6]}}</p>
                 {% endif %}
             </div>
             {% else %}

@@ -2,8 +2,10 @@ from flask import Flask, redirect, url_for, render_template, request, session, m
 import db
 import functions
 import mysql.connector
+import datetime
 
 app = Flask(__name__)
+app.secret_key = "monkey"
 
 @app.route("/", methods=["GET"])
 def index():
@@ -46,7 +48,8 @@ def login():
         if not user_data:
             return render_template("login_page.html", failed_login=True)
 
-        if not functions.check_login(provided_password, user_data[4]):
+        if not functions.check_login(provided_password, user_data[3]):
+            print(user_data[3])
             return render_template("login_page.html", failed_login=True)
         else:
             session["user_info"] = {
@@ -57,7 +60,7 @@ def login():
             }
             
             response = make_response(
-                redirect(url_for("userPage"))
+                redirect(url_for("userPage", usermame=session["user_info"]["username"]))
             )
 
             response.set_cookie("username", provided_username)
@@ -101,12 +104,14 @@ def userPage(username):
         query = """
             SELECT m.Movie_Title,   
                    m.Movie_ID,      
+                   rv.Review_ID,
                    rv.Review_Title, 
                    rv.Likes,        
                    rv.Dislikes,     
                    rv.Review_Text,  
+                   r.Rating_ID,
                    r.Rating_Score,  
-                   r.Rating_Date    
+                   r.Rating_Date
             FROM Rating r 
             LEFT JOIN Review rv ON r.Rating_ID = rv.Rating_ID
             INNER JOIN Movie m ON r.Movie_ID = m.Movie_ID
@@ -120,8 +125,6 @@ def userPage(username):
         cursor.close()
         connection.close()
 
-        
-
         return render_template("user_page.html", owner=owner, username=username, reviews_and_ratings=rating_and_review_data, reviewer_score=reviewer_score)
 
 @app.route("/user_registration", methods=["POST", "GET"])
@@ -133,6 +136,10 @@ def user_registration():
         suggested_password = request.form.get("registered_password")
         
         connection = db.get_connection()
+        print(connection)
+        
+        if connection and connection.is_connected():
+            print("det er faktisk en kobling her!!!")
 
         if not connection:
             return "Error connecting to database", 500
@@ -155,6 +162,7 @@ def user_registration():
             password_hash = functions.generate_password_hash(suggested_password)
 
             try:
+                connection = db.get_connection()
                 query = "INSERT INTO User VALUES (%s, %s, %s, %s, %s, %s, %s)"
                 
                 cursor = connection.cursor()
@@ -178,7 +186,7 @@ def user_registration():
                 return response
 
             except mysql.connector.Error as err:
-                print("Error during insert: ", err)
+                print("Error during insert: bruh ", err)
                 return f"Server error: {err} ", 500
         else:
             return render_template("user_registration.html", username_already_exists=True)
@@ -187,24 +195,48 @@ def user_registration():
 def handle_review_rating_both():
     if request.method == "GET":
         username = request.args.get("username")
-        choice = request.args.get("choice")
+        choose_review_rating = request.args.get("choose_review_rating")
+        order_by_date = request.args.get("order_by_date")
+        order_by_score = request.args.get("order_by_score")
+        select_genre = request.args.get("select_genre")
 
-        if not username or not choice:
+        username_session = session["user_info"]["username"]
+
+        if not username or not choose_review_rating or not order_by_date or not order_by_score or not select_genre:
             return "Invalid parameters in URL", 403
         
         connection = db.get_connection()
         if not connection:
             return "Internal server error", 500
         
-        query = functions.get_review_rating_both(choice)
+        query = functions.get_review_rating_both(choose_review_rating, order_by_date, order_by_score, select_genre)
         cursor = connection.cursor()
-        cursor.execute(query, (username,))
+
+        if select_genre != "1":
+            data = cursor.execute(query, (username, select_genre))
+        else:
+            data = cursor.execute(query, (username,))
 
         data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        if len(data) > 0:
+            if len(data[0] == 4):
+                many_attributes = False
+            elif len(data[0] == 8):
+                many_attributes = True
+        else:
+            many_attributes = False
 
-        if 
+        if username == username_session:
+            owner = True
 
+        return render_template("partials/sorting_result_user_page.html", many_attributes=many_attributes, reviews_and_ratings=data, owner=owner)
 
+@app.route("/movie_site/<movie_id>")
+def movie_site(movie_id): 
+    if request.method == "GET":
+        return "for å unngå error"
 
 @app.route("/write_review", methods=["POST", "GET"])
 def write_review():
@@ -321,7 +353,26 @@ def director_site(director_id):
 
         return render_template("director_site.html", movies=director_movies)
 
+@app.route("/search", methods=["GET"])
+def search():
+    if request.method == "GET":
+        movie_name = request.args.get("movie_name")
 
+        connection = db.get_connection()
+        if not connection:
+            return "Database connection failed", 500
+        
+        cursor = connection.cursor()
+
+        query = "SELECT Movie_ID, Movie_Title, Release_Date FROM Movie WHERE Movie_Title = %s ORDER BY Release_Date DESC"
+        cursor.execute(query, (movie_name,))
+        search_results=cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        
+
+        return render_template("search_results.html", search_results=search_results)
 
 if __name__ == "__main__":
     app.run(debug=True)
