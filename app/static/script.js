@@ -76,6 +76,55 @@ async function search_for_movie(){
     }
 }
 
+async function change_button_to_dropdown(){
+    button_area = document.getElementById("button_area");
+    write_review_button = document.getElementById("write_review_button");
+    rating_button = document.getElementById("rating_button");
+
+    button_area.removeChild(rating_button);
+    
+    const dropdown_menu = document.createElement("select");
+    dropdown_menu.id = "dropdown_menu";
+
+    for(var i; i < 6; i++){
+        let option = document.createElement("option");
+        option.textContent = ""+(i+1);
+        option.value = ""+(i+1);
+        dropdown.appendChild(option);
+    }
+
+    dropdown_menu.addEventListener("change", async function (){
+        try{
+            let value = this.value;
+            let url = "/rate_movie"
+
+            const response = await fetch(url,{
+                method:"POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({selected_value:value})
+            });
+            
+            if(response !== 200){
+                console.log("Problem sending data to server: ", response.status);
+            }else{
+                const button_area = document.getElementById("button_area");
+                const dropdown_menu = document.getElementById("dropdown_menu");
+                const validation_text = document.createElement("p");
+                
+                validation_text.textContent = "Movie Rated"
+                button_area.removeChild("dropdown_menu");
+                button_area.appendChild(validation_text);
+            }
+        }catch(error){
+            console.log("Problem connecting to server: ", error);
+        }   
+    })
+
+    button_area.appendChild(dropdown_menu);
+}
+
 // HTML elements here
 //var login_button = document.getElementById("login_button");
 //login_button.onclick = login();

@@ -370,9 +370,53 @@ def search():
         cursor.close()
         connection.close()
 
-        
-
         return render_template("search_results.html", search_results=search_results)
+@app.route("/movie_site/<movie_id>", methods=["GET"])
+def movie_site(movie_id):
+    if request.method == "GET":
+        has_reviewed_movie = False
+        user_id = session["user_info"]["user_id"]
+        
+        movie_data = functions.get_movie_data_query(movie_id) 
+        review_data = functions.get_reviews_from_movie_query(movie_id)        
+        actor_data = functions.get_actors_in_movie_query(movie_id)
+        director = functions.get_directors_in_movie_query(movie_id)
+
+        #beskjed til meg selv:
+        # Husk at en enkel måte å få med seg group by på er å lage en film fremside som lister opp alle filmene. 
+        # her kan man altså bruke group by movie id og finne average av filmene!!!
+       
+        # Query information: Simple check to check if the user has reviewed the movie before
+        rating_information = """
+            SELECT User_ID FROM Rating WHERE Movie_ID = %s AND User_ID = %s; 
+        """
+
+        connection = db.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(rating_information, (movie_data, user_id))
+        rating_information_data = cursor.fetchone()
+
+        if rating_information_data:
+            has_reviewed_movie = True
+
+        return render_template("movie_site-html", movie_data=movie_data, ) # IKKE FERDIG HER ENDA GJØR FERDIG!!
+    
+
+@app.route("/rate_movie", methods=["POST"])
+def rate_movie():
+    if request.method == "POST":
+        data = request.get_json()
+        value = data["selected_value"]
+    
+
+# OBS LAG ET ENDEPUNKT SOM HETER handle_liking_review som tar seg av det å like et review til en bruker
+
+
+
+"""
+Lag en all movies side som lister opp alle filmene som er registrert i databasen i alfabetisk rekkefølge.
+Gjør dette siden vi må ha med et group by 
+"""
 
 if __name__ == "__main__":
     app.run(debug=True)

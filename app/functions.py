@@ -33,8 +33,8 @@ def generate_new_user_id():
         user_data = cursor.fetchone()
         if not user_data:
             valid_id = True
-            cursor.close()
             connection.close()
+            cursor.close()
     
     return new_id
     
@@ -109,4 +109,117 @@ def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, 
         
     return query
 
+# Function for getting the relevant query for a specific movie
+def get_reviews_from_movie_query(movie_id):
+    # Query information:
+    # Query where all reviews and related ratings are retrieved. 
+    # Bruk denne til å hente informasjon om alle reviews her
+    review_query = """
+        SELECT 
+            rv.Review_ID,
+            rv.Likes,
+            rv.Dislikes,
+            rv.Review_Text,
+            rv.Review_Date,
+            r.Rating_Score
+        FROM Review rv
+        JOIN Rating r
+        ON rv.Review_ID = r.Movie_ID
+        WHERE rv.Movie_ID = %s;
+    """        
+    connection = db.get_connection()
+    if not connection:
+        return False
+    else:
+        cursor = connection.cursor()
+        cursor.execute(review_query, (movie_id,))
+        review_data = cursor.fetchall()
+        cursor.close()
+        connection.close()
 
+        return review_data
+
+# Function for getting information about the movie
+def get_movie_data_query(movie_id):
+    # Query information:
+    # Analytical query, that is, an aggregation query getting the average score for a specific movie
+    # When doing query between a one to many relationship this is fine, but combining this with a many to many
+    # relation can be messy. Here I am using a subquery to aggregate the ragting and joining it with movie to get all information needed. 
+    # Bruk denne til å hente informasjon om filmen her:)
+    aggregation_query = """
+        SELECT m.* 
+                average_ratings.Average_Score,
+        FROM Movie m
+        LEFT JOIN (
+            SELECT Movie_ID, AVG(r.Rating_Score) as Average_Score
+            FROM Rating r
+            GROUP BY r.Movie_ID
+        ) AS average_ratings
+        ON m.Movie_ID = average_ratings.Movie_ID
+        WHERE m.Movie_ID = %s;
+    """
+
+    connection = db.get_connection()
+    if not connection:
+        return "Connection to database failed",500
+    else:
+        cursor = connection.cursor()
+        cursor.execute(aggregation_query, (movie_id,))
+        review_data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return review_data
+
+def get_actors_in_movie_query(movie_id):
+    # Query for finding the relevant actors in the movie
+    actor_query = """
+        SELECT 
+            a.Actor_ID, 
+            a.Actor_First_Name,
+            a.Actor_Last_Name,
+            aam.Character_Name
+        FROM Actor a
+        INNER JOIN Actor_And_Movie aam
+        ON a.Actor_ID = aam.Actor_ID 
+        INNER JOIN Movie as m
+        ON aam.Movie_ID = m.Movie_ID
+        WHERE m.Movie_ID = %s;
+    """
+
+    connection = db.get_connection()
+    if not connection:
+        return "Connection to database failed", 500
+    else:
+        cursor = connection.cursor()
+        cursor.execute(actor_query, (movie_id,))
+        actor_data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return actor_data
+
+def get_directors_in_movie_query(movie_id):
+    # Same as actor query, just with directors
+    director_query = """
+    SELECT 
+        d.Director_ID,
+        d.Director_First_Name,
+        d.Director_Last_Name
+    FROM Director d
+    INNER JOIN Director_And_Movie dam
+    ON d.Director_ID = dam.Director_ID
+    INNER JOIN Movie m
+    ON dam.Movie_ID = m.Movie_ID
+    WHERE m.Movie_ID = %s;
+    """
+
+    connection = db.get_connection()
+
+    if not connection:
+        return "Connection to database failed", 500
+    else:
+        cursor = connection.cursor()
+        cursor.execute(director_query, (movie_id,))
+        director_data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return director_data
