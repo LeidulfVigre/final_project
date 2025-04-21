@@ -76,7 +76,7 @@ async function search_for_movie(){
     }
 }
 
-async function change_button_to_dropdown(){
+async function change_button_to_dropdown(movie_id){
     button_area = document.getElementById("button_area");
     write_review_button = document.getElementById("write_review_button");
     rating_button = document.getElementById("rating_button");
@@ -103,9 +103,9 @@ async function change_button_to_dropdown(){
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({selected_value:value})
+                body: JSON.stringify({selected_value:value, movie:movie_id})
             });
-            
+
             if(response !== 200){
                 console.log("Problem sending data to server: ", response.status);
             }else{
@@ -114,7 +114,7 @@ async function change_button_to_dropdown(){
                 const validation_text = document.createElement("p");
                 
                 validation_text.textContent = "Movie Rated"
-                button_area.removeChild("dropdown_menu");
+                button_area.removeChild(dropdown_menu);
                 button_area.appendChild(validation_text);
             }
         }catch(error){
@@ -123,6 +123,36 @@ async function change_button_to_dropdown(){
     })
 
     button_area.appendChild(dropdown_menu);
+}
+
+async function delete_review(review_id){
+    try{
+        let url = "/delete_review";
+        const response = await fetch(url, {
+            method:"POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({selected_review:review_id})
+        });
+    }catch(error){
+        console.log("Problem connecting to server: ", error);
+    }
+}
+
+async function delete_user(){
+    try{
+        let url = "/delete_user";
+        const response = await fetch(url, {
+            method:"POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({sent_data:"junk data"})
+        });
+    }catch(error){
+        console.log("Problem connecting to server: ", error);
+    }
 }
 
 // HTML elements here

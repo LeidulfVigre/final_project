@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main %}
+<form action="/edit_user" method="post">
+<label for="username">New Username: </label>
+<input type="text" name="username" id="username" value="{{old_username}}"><br>
+
+<label for="firstname">New Firstname: </label>
+<input type="text" name="firstname" id="firstname" value="{{old_firstname}}"><br>
+
+<label for="lastname">New Lastname</label>
+<input type="text" name="lastname" id="lastname" value="{{old_lastname}}"><br>
+
+<label for="password">New Password: </label>
+<input type="text" name="password" id="password"><br>
+
+<input type="submit" value="Save Changes">
+</form><br>
+
+<button onclick="delete_user()">Delete User</button><br>
+
+{% if username_taken %}
+<h3>Username Already Taken</h3>
+{% endif %}
+
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

@@ -1,31 +1,68 @@
 {% extends "base.html" %}
 
 {% block main %}
-<h3>{{movie_data[1]}}</h3>
-<h4>Score: {{movie_data[9]}}</h4>
+<div id="movie_details_area">
+    <h3>{{movie_data[1]}}</h3>
+    <h4>Score: {{movie_data[9]}}</h4>
+    <h4>{{movie_data[2]}}</h4>
+    <h4>{{movie_data[3]}}</h4>
+    <h4>{{movie_data[4]}}</h4>
+    <h4>{{movie_data[5]}}</h4>
+    <h4>{{movie_data[7]}}</h4>
+    <h4>{{movie_data[8]}}</h4>
+</div>
+<div id="synopsis_area">
+    <p>{{movie_data[6]}}</p>
+</div>
 <div id="button_area">
     <button id="write_review_button" onclick="window.location.href='/write_review/{{movie_data[0]}}'">Write Review</button> 
-    <button id="rating_button" onclick="change_button_to_dropdown()">Rate Movie</button> 
+    {% if has_reviewed_movie %}
+    <button id="rating_button" onclick="change_button_to_dropdown('{{movie_data[0]}}')">Rate Movie</button> 
+    {% else %}
+    <p>Movie already rated</p>
+    {% endif %}
 </div>
 
 <div id="directors">
     <h3>Directors:</h3>
-    {% for director in directors %}
+    <ul>
+    {% for director in director_data %}
+    <li><h4><a href="/director_site/{{director[0]}}">{{director[1] director[2]}}</a></h4></li>
     {% endfor %}
+    </ul>
 </div>
 
 <div id="Actors">
     <h3>Actors:</h3>
-    {% for actor in actors %}
+    <ul>
+    {% for actor in actor_data %}
+    <li><h4><a href="/director_site/{{actor[0]}}">{{actor[1] actor[2]}}</a></h4></li>
     {% endfor %}
+    </ul>
 </div>
 
 {% endblock %}
 
 {% block footer %}
 <!--Reviews går her: -->
+<!-- Husk å legge til slik at vi kan redigere reviews hvis en bruker faktisk har skrevet dette reviewet! VIKTIG funksjonalitet det.
+    Bruk også user_id når en skal like et review. Da sender man jo bare med user id-en til den personen som har skrevet reviewet. 
+-->
 <h3>Reviews:</h3>
-{% for review in reviews %}
+
+{% for review in review_data %}
+    <div class="review_div">
+    <h3>By: <a href="/user_page/{{review[8]}}">{{review[8]}}</a></h3>
+    <h4>{{review[5]}}</h4>
+    {% if review[7] == current_user_id %}
+    <button onlcick="window.location.href='/edit_review/{{review[0]}}'">Edit review</button> <!--IKKE FERDIG MED DENNE KNAPPEN ENDA!! GJØR DEN FERDIG!!!-->
+    {% endif %}
+    <h4>{{review[6]}}</h4>
+    <h3>{{review[4]}}</h3>
+    <p onclick="">Likes: {{review[1]}}</p>
+    <p>Dislikes: {{review[2]}}</p>
+    <p>{{review[3]}}</p>
+    </div>
 {% else %}
     <h4>There are no reviews of this movie yet!</h4>
 {% enfor %}

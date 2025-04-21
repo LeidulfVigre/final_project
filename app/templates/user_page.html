@@ -17,9 +17,10 @@
     <div id = "user_information">
         <h2>{{username}} Review Score: {{reviewer_score.score}} Status: {{reviewer_score.status}}</h2>
         {% if owner %}
-        <button id = "settings_button" onclick="">
+        <button id = "settings_button" onclick="window.location.href='/edit_user/{{username}}'">
             Settings
         </button>
+        {% endif %}
     </div>
     <div id = "content_of_page">
         <div id="content_top">

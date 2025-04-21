@@ -13,11 +13,6 @@ def index():
 
         return render_template("startsite_login_register.html")
 
-@app.route("/movie_site", methods=["GET"])
-def movie_site():
-    if request.method == "GET":
-        return render_template("movie_site.html", movie_name="Revenge of the Sith", score="5", duration="2 timer", genre="Science Fiction", age_limit="12", release_date="2001", synopsis="Bra film", country_of_origin="USA", movie_language="English")
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -144,7 +139,7 @@ def user_registration():
         if not connection:
             return "Error connecting to database", 500
         
-        query = "SELECT Username FROM User WHERE Username = %s"
+        query = "SELECT Username FROM User WHERE Username = %s;"
         cursor = connection.cursor()
         cursor.execute(query, (suggested_username,))
 
@@ -163,7 +158,7 @@ def user_registration():
 
             try:
                 connection = db.get_connection()
-                query = "INSERT INTO User VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                query = "INSERT INTO User VALUES (%s, %s, %s, %s, %s, %s, %s);"
                 
                 cursor = connection.cursor()
                 cursor.execute(query, (user_id,username,first_name,last_name,user_type,reviewer_score,password_hash))
@@ -179,7 +174,7 @@ def user_registration():
                 }
 
                 response = make_response(
-                    redirect(url_for("userPage"))
+                    redirect(url_for("userPage"), username)
                 )
 
                 response.set_cookie("username", suggested_password)
@@ -232,11 +227,6 @@ def handle_review_rating_both():
             owner = True
 
         return render_template("partials/sorting_result_user_page.html", many_attributes=many_attributes, reviews_and_ratings=data, owner=owner)
-
-@app.route("/movie_site/<movie_id>")
-def movie_site(movie_id): 
-    if request.method == "GET":
-        return "for å unngå error"
 
 @app.route("/write_review", methods=["POST", "GET"])
 def write_review():
@@ -314,7 +304,7 @@ def actor_site(actor_id):
 
         return render_template("actor_site.html", movies=actor_movies)
     
-@app.route("/director_site/<int:director_id>", methods=["GET"])
+@app.route("/director_site/<director_id>", methods=["GET"])
 def director_site(director_id):
     connection = db.get_connection()
     if not connection:
@@ -371,6 +361,7 @@ def search():
         connection.close()
 
         return render_template("search_results.html", search_results=search_results)
+    
 @app.route("/movie_site/<movie_id>", methods=["GET"])
 def movie_site(movie_id):
     if request.method == "GET":
@@ -380,7 +371,7 @@ def movie_site(movie_id):
         movie_data = functions.get_movie_data_query(movie_id) 
         review_data = functions.get_reviews_from_movie_query(movie_id)        
         actor_data = functions.get_actors_in_movie_query(movie_id)
-        director = functions.get_directors_in_movie_query(movie_id)
+        director_data = functions.get_directors_in_movie_query(movie_id)
 
         #beskjed til meg selv:
         # Husk at en enkel måte å få med seg group by på er å lage en film fremside som lister opp alle filmene. 
@@ -392,14 +383,20 @@ def movie_site(movie_id):
         """
 
         connection = db.get_connection()
+
+        if not connection:
+            return "Database connection failed", 500
+
         cursor = connection.cursor()
         cursor.execute(rating_information, (movie_data, user_id))
         rating_information_data = cursor.fetchone()
+        cursor.close()
+        connection.close()
 
         if rating_information_data:
             has_reviewed_movie = True
 
-        return render_template("movie_site-html", movie_data=movie_data, ) # IKKE FERDIG HER ENDA GJØR FERDIG!!
+        return render_template("movie_site-html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id) # IKKE FERDIG HER ENDA GJØR FERDIG!!
     
 
 @app.route("/rate_movie", methods=["POST"])
@@ -407,11 +404,234 @@ def rate_movie():
     if request.method == "POST":
         data = request.get_json()
         value = data["selected_value"]
+        movie_id = data["movie"]
+        
+        if not value:
+            return "",400
+        else:
+            rating_id = functions.generate_new_rating_id()
+            rating_score = int(value)
+            current_date = datetime.datetime.now()
+            user_id = session["user_info"]["user_info"]
+
+            query = """
+                INSERT INTO Rating VALUES (%s, %s, %s, %s, %s); 
+            """
+
+            try:
+                connection = db.get_connection()
+                cursor = connection.cursor()
+                cursor.execute(query, (rating_id, rating_score, current_date, user_id, movie_id))
+                connection.commit()
+                cursor.close()
+                connection.close()
+                return "", 200
+            except mysql.connector.Error as err:
+                print("Error during insert: bruh ", err)
+                return f"Server error: {err} ", 500
+
+@app.route("/edit_review/<review_id>", methods=["GET","POST"])
+def edit_review(review_id):
+    if request.method == "GET":
+        connection = db.get_connection()
+
+        if not connection:
+            return "Database connection failed",500
+
+        query = "SELECT Review_Text, Review_Title FROM Review WHERE Review_ID = %s;"
+        cursor = connection.cursor()
+
+        cursor.execute(query, (review_id,))
+
+        review_data = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+        if not review_data:
+            return "An error has occured. Invalid data: ", 403
+        
+        old_title = review_data[8]
+        old_review = review_data[3]
+
+        return render_template("edit_review.html", review_id=review_id,old_title=old_title,old_review=old_review)
+    elif request.method == "POST":
+        new_title = request.form.get("title")
+        new_text = request.form.get("review_text")
+        new_rating = int(request.form.get("rating"))
+        current_date = datetime.datetime.now()
+
+        if not new_title or not new_text or not new_rating:
+            return "Invalid data sent", 403
+        
+        connection = db.get_connection()
+
+        if not connection:
+            return "Database connection failed", 500
+        
+        cursor = connection.cursor()
+
+        # Query information. Gets the relevant rating id so we can also update the rating
+        query = "SELECT Rating_ID FROM Review WHERE Review_ID = %s;"
+        cursor.execute(query, (review_id,))
+        data = cursor.fetchone()
+        rating_id = data[0]
+
+        update_rating_query = "UPDATE Rating SET Rating_Score = %s, Rating_Date = %s WHERE Rating_ID = %s;"
+        update_review_query = "UPDATE Review SET Review_Text = %s, Review_Date = %s, Review_Title = %s WHERE Review_ID = %s;"
+        
+        try:
+            cursor.execute(update_rating_query, (new_rating, current_date, rating_id))
+            cursor.execute(update_review_query, (new_text, current_date, new_title, review_id))
+            connection.commit()
+        except Exception as e:
+            connection.rollback()
+            print("Something went wrong:", e)
+            return "An error occured during update: ", 500
+        finally:
+            cursor.close()
+            connection.close()
+
+        return redirect(url_for("userPage", session["user_info"]["username"]))
+
+@app.route("/delete_review", methods=["POST"])
+def delete_review():
+    if request.method == "POST":
+        data = request.get_json()
+        review_id = data["selected_review"]
+        connection = db.get_connection()
+
+        if not connection:
+            return "Connection to database failed", 500
+        cursor = connection.cursor()
+
+        # Query information. Gets the relevant rating id so we can also delete the rating
+        query = "SELECT Rating_ID FROM Review WHERE Review_ID = %s;"
+        cursor.execute(query, (review_id,))
+        data = cursor.fetchone()
+        rating_id = data[0]
+
+        delete_rating_query = "DELETE FROM Rating WHERE Rating_ID = %s;"
+        delete_review_query = "DELETE FROM Review WHERE Review_ID = %s;"
+
+        try:
+            cursor.execute(delete_review_query, (review_id,))
+            cursor.execute(delete_rating_query, (rating_id,))
+            connection.commit()
+        except Exception as e:
+            connection.rollback()
+            print("Error during deletion")
+            return "An error occured during deletion", 500
+        finally:
+            cursor.close()
+            connection.close()
+        
+        return redirect(url_for("userPage", session["user_info"]["username"]))    
+
+@app.route("/edit_user/<user_name>", methods=["GET", "POST"])
+def edit_user(user_name):
+    if request.method == "GET":
+        connection = db.get_connection()
+
+        if not connection:
+            return "Connection to database failed", 500
+        user_data_query = "SELECT Firstname, Lastname FROM User WHERE Username = %s;"
+
+        cursor = connection.cursor()
+        cursor.execute(user_data_query, (user_name,))
+        user_data = cursor.fetchone()
+        cursor.close()
+        connection.close()
+
+        if not user_data:
+            return "Failed to fetch data from user",500
+
+        firstname = user_data[0]
+        lastname = user_data[1]
+        
+        return render_template("edit_user.html", old_username=user_name, old_firstname=firstname, old_lastname=lastname, username_taken=False)
+    elif request.method == "POST":
+        new_username = request.form.get("username")
+        new_firstname = request.form.get("firstname")
+        new_lastname = request.form.get("lastname")
+        new_password = request.form.get("password")
+        user_id = session["user_info"]["user_id"]
+        new_hashed_password = functions.hash_password(new_password)
+
+        connection = db.get_connection()
+
+        if not connection:
+            return "Connection to database failed", 500
+        
+        cursor = connection.cursor()
+
+        query_username = "SELECT * FROM User WHERE Username = %s;"
+        
+
+        cursor.execute(query_username, (new_username,))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            user_data_query = "SELECT Firstname, Lastname FROM User WHERE Username = %s;"
+
+            cursor = connection.cursor()
+            cursor.execute(user_data_query, (user_name,))
+            user_data = cursor.fetchone()
+            cursor.close()
+            connection.close()
+
+            firstname = user_data[0]
+            lastname = user_data[1]
+
+            return render_template("edit_user.html",old_username=session["user_info"]["username"], old_firstname=firstname, old_lastname=lastname, username_taken=True)
+        
+        update_user_info_query = "UPDATE User SET Username = %s, First_Name = %s, Last_Name = %s, Password_Hash = %s WHERE User_ID = %s;"
+
+        try:
+            cursor.execute(update_user_info_query, (new_username, new_firstname, new_lastname, new_hashed_password, user_id))
+            cursor.commit()
+        except Exception as e:
+            connection.rollback()
+            print("Something went wrong:", e)
+            return "An error occured during update: ", 500
+        finally:
+            cursor.close()
+            connection.close()
+        
+        return redirect(url_for("userPage", session["user_info"]["username"]))
     
+@app.route("/delete_user", methods=["POST"])
+def delete_user():
+    # Må først slette alle reviews til brukeren, så slettes ratingsene, så må brukeren slettes.
+    if request.method == "POST":
+        user_id = session["user_info"]["user_id"]
+        connection = db.get_connection()
+        
+        if not connection:
+            return "Connection to database failed",500
+        
+        cursor = connection.cursor()
+    
+        delete_reviews_query = "DELETE FROM Review WHERE User_ID = %s;"
+        delete_ratings_query = "DELETE FROM Rating WHERE User_IO = %s;"
+        delete_user_query = "DELETE FROM User WHERE User_ID = %s;"
 
-# OBS LAG ET ENDEPUNKT SOM HETER handle_liking_review som tar seg av det å like et review til en bruker
-
-
+        try:
+            cursor.execute(delete_reviews_query, (user_id,))
+            cursor.execute(delete_ratings_query, (user_id,))
+            cursor.execute(delete_user_query, (user_id,))
+            connection.commit()
+        except Exception as e:
+            connection.rollback()
+            print("Error during deletion")
+            return "An error occured during deletion", 500
+        finally:
+            cursor.close()
+            connection.close()
+        
+        session.clear()
+        response = redirect(url_for("login"))
+        
+        return response    
 
 """
 Lag en all movies side som lister opp alle filmene som er registrert i databasen i alfabetisk rekkefølge.

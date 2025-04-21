@@ -26,19 +26,39 @@ def generate_new_user_id():
     while not valid_id:
         new_id = random.randint(1000000,9999999)
 
-        query = "SELECT User_ID from User WHERE User_ID = %s"
+        query = "SELECT User_ID FROM User WHERE User_ID = %s;"
         connection = db.get_connection()
         cursor = connection.cursor()
         cursor.execute(query, (new_id,))
         user_data = cursor.fetchone()
         if not user_data:
             valid_id = True
-            connection.close()
             cursor.close()
+            connection.close()
+    
+    return new_id
+
+# Function for generating a new rating ID:
+def generate_new_rating_id():
+    valid_id = False
+    new_id = -1
+
+    while not valid_id:
+        new_id = random.randint(1000000,9999999)
+
+        query = "SELECT Rating_ID FROM Rating WHERE Rating_ID = %s;"
+        connection = db.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(query, (new_id,))
+        rating_data = cursor.fetchone()
+
+        if not rating_data:
+            valid_id = True
+            cursor.close()
+            connection.close()
     
     return new_id
     
-
 # Function for getting relevant query from 
 def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, select_genre):
 
@@ -121,10 +141,15 @@ def get_reviews_from_movie_query(movie_id):
             rv.Dislikes,
             rv.Review_Text,
             rv.Review_Date,
-            r.Rating_Score
+            rv.Review_Title,
+            r.Rating_Score,
+            u.User_ID,
+            u.Username
         FROM Review rv
         JOIN Rating r
         ON rv.Review_ID = r.Movie_ID
+        JOIN User u
+        ON rv.User_ID = u.User_ID
         WHERE rv.Movie_ID = %s;
     """        
     connection = db.get_connection()

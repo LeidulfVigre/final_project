@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <form action="/edit_review/{{review_id}}" method="post">
+        <label for="review_title">Review Title: </label>
+        <input type="text" id="review_title" value="{{old_title}}" name="title"><br>
+
+        <label for="review_text">Review Text: </label>
+        <textarea id="review_text" name="review_text">{{old_review}}</textarea><br>
+
+        <label for="rating">Rating: </label>
+        <select id="rating" name="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select><br>
+
+        <input type="submit" value="Save changes">
+    </form>
+
+    <button onclick="delete_review('{{review_id}}')">Delete Review</button>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
