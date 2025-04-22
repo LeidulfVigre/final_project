@@ -631,7 +631,40 @@ def delete_user():
         session.clear()
         response = redirect(url_for("login"))
         
-        return response    
+        return response
+
+
+@app.route("/show_all_movies", methods=["GET"])
+def show_all_movies():
+    if request.method == "GET":
+        connection = db.get_connection()
+        if not connection:
+            return "Connection to database failed",500
+        # Query information:
+        # joining the movie table with a subquery which finds the average rating score for each movie.
+        # We have to make it a left join so that the movies with no reviews yet can also be listed
+        query = """
+            SELECT m.Movie_ID, m.Movie_Title, m.Release_Date, average_ratings_movies.average_ratings
+            FROM Movie m 
+            LEFT JOIN (
+                SELECT Movie_ID, AVG(Rating_Score) as average_ratings
+                FROM Rating
+                GROUP BY  Movie_ID
+            ) AS average_ratings_movies
+            ON m.Movie_ID = average_ratings_movies.Movie_ID
+            ORDER BY m.Release_Date ASC; 
+        """
+
+        cursor = connection.cursor()
+
+        cursor.execute(query)
+        all_movies = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        
+        return render_template("show_all_movies.html", movies=all_movies)
+
+
 
 """
 Lag en all movies side som lister opp alle filmene som er registrert i databasen i alfabetisk rekkefølge.

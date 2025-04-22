@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+{% for movie in movies %}
+<div id="all_movies_movie_div">
+    <h3>{{movie[1]}} {{movie[2].year}} Score: {{movie[3]}}</h3>
+</div>
+<br>
+{% else %}
+
+{% endfor %}
+
+{% endblock %}
