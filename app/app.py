@@ -11,7 +11,10 @@ app.secret_key = "monkey"
 def index():
     if request.method == "GET":
 
-        return render_template("startsite_login_register.html")
+        if session["user_info"]:
+            return redirect(url_for("userPage", username=session["user_info"]["username"]))
+        else:
+            return render_template("startsite_login_register.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -55,7 +58,7 @@ def login():
             }
             
             response = make_response(
-                redirect(url_for("userPage", usermame=session["user_info"]["username"]))
+                redirect(url_for("userPage", username=session["user_info"]["username"]))
             )
 
             response.set_cookie("username", provided_username)
@@ -497,7 +500,7 @@ def edit_review(review_id):
             cursor.close()
             connection.close()
 
-        return redirect(url_for("userPage", session["user_info"]["username"]))
+        return redirect(url_for("userPage", username=session["user_info"]["username"]))
 
 @app.route("/delete_review", methods=["POST"])
 def delete_review():
@@ -603,7 +606,7 @@ def edit_user(user_name):
             cursor.close()
             connection.close()
         
-        return redirect(url_for("userPage", session["user_info"]["username"]))
+        return redirect(url_for("userPage", username=session["user_info"]["username"]))
     
 @app.route("/delete_user", methods=["POST"])
 def delete_user():
