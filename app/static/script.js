@@ -5,7 +5,7 @@ search_bar.addEventListener("blur", () => {
     setTimeout(() => {
         const search_results = document.getElementById("search_results");
         search_results.innerHTML = "";
-    }, 150);
+    }, 200);
     
 })
 
