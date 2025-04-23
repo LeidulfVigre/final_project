@@ -2,8 +2,11 @@
 
 const search_bar = document.getElementById("search_bar");
 search_bar.addEventListener("blur", () => {
-    const search_results = document.getElementById("search_results");
-    search_results.innerHTML = "";
+    setTimeout(() => {
+        const search_results = document.getElementById("search_results");
+        search_results.innerHTML = "";
+    }, 150);
+    
 })
 
 async function login(){
@@ -69,6 +72,7 @@ async function search_for_movie(){
             console.log("Problem getting data from server: ", response.status);
         }else{
             const html = await response.text()
+
             search_results.innerHTML = html;
         }
     }catch(error){

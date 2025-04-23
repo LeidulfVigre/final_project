@@ -183,8 +183,8 @@ def get_movie_data_query(movie_id):
     # relation can be messy. Here I am using a subquery to aggregate the ragting and joining it with movie to get all information needed. 
     # Bruk denne til å hente informasjon om filmen her:)
     aggregation_query = """
-        SELECT m.* 
-                average_ratings.Average_Score,
+        SELECT m.*,
+                average_ratings.Average_Score
         FROM Movie m
         LEFT JOIN (
             SELECT Movie_ID, AVG(r.Rating_Score) as Average_Score
