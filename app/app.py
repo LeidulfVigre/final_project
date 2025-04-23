@@ -11,7 +11,7 @@ app.secret_key = "monkey"
 def index():
     if request.method == "GET":
 
-        if session["user_info"]:
+        if session:
             return redirect(url_for("userPage", username=session["user_info"]["username"]))
         else:
             return render_template("startsite_login_register.html")
@@ -673,7 +673,11 @@ def show_all_movies():
         
         return render_template("show_all_movies.html", movies=all_movies)
 
-
+@app.route("/log_out", methods=["GET"])
+def log_out():
+    if request.method == "GET":
+        session.clear()
+        return redirect(url_for("index"))
 
 """
 Lag en all movies side som lister opp alle filmene som er registrert i databasen i alfabetisk rekkefølge.
