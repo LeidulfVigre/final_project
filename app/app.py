@@ -87,14 +87,13 @@ def userPage(username):
 
         user_id = reviewer_score_fetch[0]
         
-
         if reviewer_score_fetch[1] > 0:
             if reviewer_score_fetch[1] > 3:
                 reviewer_score = {"score":reviewer_score_fetch[0], "reviewer_status":"Reliable"}
             else:
                 reviewer_score = {"score":reviewer_score_fetch[0],"reviewer_status":"Unreliable"}
         else:
-            reviewer_score = {"score":reviewer_score_fetch[0],"reviewer_status":"Nothing to see here yet.."}
+            reviewer_score = {"score":"Get to reviewing!","reviewer_status":"Nothing to see here yet.."}
 
         # Query with a join between three tables: Rating, Review and Movie. Getting all Ratings and reviews a user has made.
         # This query uses a left join to get all ratings, even those without a review attached to it, along with the reviews.
@@ -300,7 +299,7 @@ def actor_site(actor_id):
         cursor.execute(query, (actor_id,))
         actor_movies = cursor.fetchall()
 
-        print("DEBUG actor_movies:", actor_movies)
+        print("DEBUG actor_movies:", actor_movies)  # <-- add this
 
         cursor.close()
         connection.close()
@@ -334,7 +333,7 @@ def director_site(director_id):
         cursor.execute(query, (director_id,))
         director_movies = cursor.fetchall()
 
-        print("DEBUG director_movies:", director_movies)
+        print("DEBUG director_movies:", director_movies)  # <-- add this
 
         cursor.close()
         connection.close()
@@ -353,8 +352,8 @@ def search():
         
         cursor = connection.cursor()
 
-        query = "SELECT Movie_ID, Movie_Title, Release_Date FROM Movie WHERE Movie_Title = %s ORDER BY Release_Date DESC"
-        cursor.execute(query, (movie_name,))
+        query = "SELECT Movie_ID, Movie_Title, Release_Date FROM Movie WHERE Movie_Title LIKE %s ORDER BY Release_Date DESC;"
+        cursor.execute(query, (f"%{movie_name}%",))
         search_results=cursor.fetchall()
         cursor.close()
         connection.close()
@@ -387,7 +386,7 @@ def movie_site(movie_id):
             return "Database connection failed", 500
 
         cursor = connection.cursor()
-        cursor.execute(rating_information, (movie_data, user_id))
+        cursor.execute(rating_information, (movie_id, user_id))
         rating_information_data = cursor.fetchone()
         cursor.close()
         connection.close()
@@ -395,7 +394,7 @@ def movie_site(movie_id):
         if rating_information_data:
             has_reviewed_movie = True
 
-        return render_template("movie_site-html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id) # IKKE FERDIG HER ENDA GJØR FERDIG!!
+        return render_template("movie_site.html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id) # IKKE FERDIG HER ENDA GJØR FERDIG!!
     
 
 @app.route("/rate_movie", methods=["POST"])

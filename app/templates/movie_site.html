@@ -27,7 +27,7 @@
     <h3>Directors:</h3>
     <ul>
     {% for director in director_data %}
-    <li><h4><a href="/director_site/{{director[0]}}">{{director[1] director[2]}}</a></h4></li>
+    <li><h4><a href="/director_site/{{director[0]}}">{{ director[1] }} {{ director[2] }}</a></h4></li>
     {% endfor %}
     </ul>
 </div>
@@ -36,7 +36,7 @@
     <h3>Actors:</h3>
     <ul>
     {% for actor in actor_data %}
-    <li><h4><a href="/director_site/{{actor[0]}}">{{actor[1] actor[2]}}</a></h4></li>
+    <li><h4><a href="/director_site/{{actor[0]}}">{{ actor[1] }} {{ actor[2] }}</a></h4></li>
     {% endfor %}
     </ul>
 </div>
@@ -65,5 +65,5 @@
     </div>
 {% else %}
     <h4>There are no reviews of this movie yet!</h4>
-{% enfor %}
+{% endfor %}
 {% endblock %}
