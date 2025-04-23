@@ -59,9 +59,9 @@ async function handle_sorting(username){
 
 async function search_for_movie(){
     const search_results = document.getElementById("search_results");
-    const search_bar     = document.getElementById("seach_bar");
+    const search_bar     = document.getElementById("search_bar");
     movie_name = search_bar.value;
-
+    console.log("search for movie blir kjørt!");
     try{
         let url = "/search?movie_name=" + movie_name;
         const response = await fetch(url);
@@ -135,6 +135,14 @@ async function delete_review(review_id){
             },
             body: JSON.stringify({selected_review:review_id})
         });
+
+        data = await response.json()
+
+        if(data.success){
+            window.location.href="/user_page/"+data.username;
+        }else{
+            console.log("Error during review deletion");
+        }
     }catch(error){
         console.log("Problem connecting to server: ", error);
     }
@@ -150,6 +158,17 @@ async function delete_user(){
             },
             body: JSON.stringify({sent_data:"junk data"})
         });
+        if(response.status === 200){
+            data = await response.json()
+            console.log("data her:", data);
+            if(data.success){
+                window.location.href="/login";
+            }else{
+                console.log("Error during deletion.");
+            }
+        }else{
+            console.log("Error happened during deletion");
+        }
     }catch(error){
         console.log("Problem connecting to server: ", error);
     }

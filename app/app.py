@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, session, make_response
+from flask import Flask, redirect, url_for, render_template, request, session, make_response, jsonify
 import db
 import functions
 import mysql.connector
@@ -172,9 +172,10 @@ def user_registration():
                     "user_type":"N",
                     "password":password_hash
                 }
+                print("USERNAME HER: ", username)
 
                 response = make_response(
-                    redirect(url_for("userPage"), username)
+                    redirect(url_for("userPage", username=session["user_info"]["username"]))
                 )
 
                 response.set_cookie("username", suggested_password)
@@ -195,7 +196,11 @@ def handle_review_rating_both():
         order_by_score = request.args.get("order_by_score")
         select_genre = request.args.get("select_genre")
 
+        print(username, choose_review_rating, order_by_date, order_by_score, select_genre)
+
         username_session = session["user_info"]["username"]
+
+        print(username_session)
 
         if not username or not choose_review_rating or not order_by_date or not order_by_score or not select_genre:
             return "Invalid parameters in URL", 403
@@ -225,7 +230,7 @@ def handle_review_rating_both():
 
         if username == username_session:
             owner = True
-
+        print("BLIR KJØRT HER BLIR KJØRT HER")
         return render_template("partials/sorting_result_user_page.html", many_attributes=many_attributes, reviews_and_ratings=data, owner=owner)
 
 @app.route("/write_review", methods=["POST", "GET"])
@@ -350,6 +355,7 @@ def search():
 
         connection = db.get_connection()
         if not connection:
+            print("JEG BLIR DESVERRE KJØRT!")
             return "Database connection failed", 500
         
         cursor = connection.cursor()
@@ -360,7 +366,7 @@ def search():
         cursor.close()
         connection.close()
 
-        return render_template("search_results.html", search_results=search_results)
+        return render_template("partials/search_results.html", search_results=search_results)
     
 @app.route("/movie_site/<movie_id>", methods=["GET"])
 def movie_site(movie_id):
@@ -525,7 +531,7 @@ def delete_review():
             cursor.close()
             connection.close()
         
-        return redirect(url_for("userPage", session["user_info"]["username"]))    
+        return jsonify({"success": True, "username": session["user_info"]["username"]}) 
 
 @app.route("/edit_user/<user_name>", methods=["GET", "POST"])
 def edit_user(user_name):
@@ -534,7 +540,7 @@ def edit_user(user_name):
 
         if not connection:
             return "Connection to database failed", 500
-        user_data_query = "SELECT Firstname, Lastname FROM User WHERE Username = %s;"
+        user_data_query = "SELECT First_Name, Last_Name FROM User WHERE Username = %s;"
 
         cursor = connection.cursor()
         cursor.execute(user_data_query, (user_name,))
@@ -612,7 +618,7 @@ def delete_user():
         cursor = connection.cursor()
     
         delete_reviews_query = "DELETE FROM Review WHERE User_ID = %s;"
-        delete_ratings_query = "DELETE FROM Rating WHERE User_IO = %s;"
+        delete_ratings_query = "DELETE FROM Rating WHERE User_ID = %s;"
         delete_user_query = "DELETE FROM User WHERE User_ID = %s;"
 
         try:
@@ -622,7 +628,7 @@ def delete_user():
             connection.commit()
         except Exception as e:
             connection.rollback()
-            print("Error during deletion")
+            print("Error during deletion", e)
             return "An error occured during deletion", 500
         finally:
             cursor.close()
@@ -631,7 +637,7 @@ def delete_user():
         session.clear()
         response = redirect(url_for("login"))
         
-        return response
+        return jsonify({"success":True})
 
 
 @app.route("/show_all_movies", methods=["GET"])

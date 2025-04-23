@@ -66,67 +66,78 @@ def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, 
     # bygger basically queriet ut i fra hvilke valg som er tatt
     # dette betyr også at jeg bare trenger et partial template for å oppdatere review og rating feltet!!
     # HENT UT REVIEW ID OG RATING ID. LEGG TIL DISSE I URL-en TIL EDIT KNAPPENE I USER_PAGE TEMPLATE OG PARTIAL TEMPLATE!!!!
-    query = "" # tom trist string i starten
+    query = ""
+    
     if choose_review_rating == "1":
-        query +="""SELECT m.Movie_Title, 
-                       m.Movie_ID,       
-                       rv.Review_ID,     
-                       rv.Review_Title,  
-                       rv.Likes,         
-                       rv.Dislikes,      
-                       rv.Review_Text,   
-                       r.Rating_ID,      
-                       r.Rating_Score,
-                       r.Rating_Date     
-                FROM Review rv 
-                INNER JOIN Rating r
-                ON rv.Rating_ID = r.Rating_ID
-                INNER JOIN Movie m 
-                ON rv.Movie_ID = m.Movie_ID
-                WHERE rv.User_ID = %s"""
+        query += """
+            SELECT m.Movie_Title, 
+                   m.Movie_ID,       
+                   rv.Review_ID,     
+                   rv.Review_Title,  
+                   rv.Likes,         
+                   rv.Dislikes,      
+                   rv.Review_Text,   
+                   r.Rating_ID,      
+                   r.Rating_Score,
+                   r.Rating_Date     
+            FROM Review rv 
+            INNER JOIN Rating r ON rv.Rating_ID = r.Rating_ID
+            INNER JOIN Movie m ON rv.Movie_ID = m.Movie_ID
+            WHERE rv.User_ID = %s
+        """
     elif choose_review_rating == "2":
-        query +=  """SELECT m.Movie_Title, 
-                    m.Movie_ID,      
-                    r.Rating_ID,     
-                    r.Rating_Score,  
-                    r.Rating_Date
+        query += """
+            SELECT m.Movie_Title, 
+                   m.Movie_ID,      
+                   r.Rating_ID,     
+                   r.Rating_Score,  
+                   r.Rating_Date
             FROM Rating r
-            INNER JOIN Movie m
-            ON r.Movie_ID = m.Movie_ID
-            WHERE r.User_ID = %s"""
+            INNER JOIN Movie m ON r.Movie_ID = m.Movie_ID
+            WHERE r.User_ID = %s
+        """
     elif choose_review_rating == "3":
-        query += """SELECT m.Movie_Title, 
+        query += """
+            SELECT m.Movie_Title, 
                    m.Movie_ID,            
                    rv.Review_ID,          
                    rv.Review_Title,       
                    rv.Likes,              
                    rv.Dislikes,           
                    rv.Review_Text,        
-                   r.Review_ID             
+                   r.Rating_ID,           
                    r.Rating_Score,        
                    r.Rating_Date 
             FROM Rating r 
             LEFT JOIN Review rv ON r.Rating_ID = rv.Rating_ID
             INNER JOIN Movie m ON r.Movie_ID = m.Movie_ID
-            WHERE r.User_ID = %s"""
-    
+            WHERE r.User_ID = %s
+        """
+    else:
+        return None  # Or raise an error if the input is invalid
+
+    # Add genre filter if selected
     if select_genre != "1":
         query += " AND m.Genre = %s"
-    
-    query += " ORDER BY r.Rating_Date"
-    if order_by_date == "1":
-        query += " ASC,"
-    elif order_by_date == "2":
-        query += " DESC,"
 
-    query += " r.Rating_Score"    
+    # Add sorting
+    sort_parts = []
+
+    if order_by_date == "1":
+        sort_parts.append("r.Rating_Date ASC")
+    elif order_by_date == "2":
+        sort_parts.append("r.Rating_Date DESC")
+
     if order_by_score == "1":
-        query += " DESC"
+        sort_parts.append("r.Rating_Score DESC")
     elif order_by_score == "2":
-        query += " ASC"
-    
+        sort_parts.append("r.Rating_Score ASC")
+
+    if sort_parts:
+        query += " ORDER BY " + ", ".join(sort_parts)
+
     query += ";"
-        
+    
     return query
 
 # Function for getting the relevant query for a specific movie

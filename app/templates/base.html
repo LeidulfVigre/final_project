@@ -3,7 +3,6 @@
     <head>
         <meta charset="UTF-8">
         <title>App</title>
-        <script src = "{{url_for('static', filename='script.js')}}"></script>
         <!--Legg til javascript fil her etterpå-->
     </head>
     <body>
@@ -16,8 +15,11 @@
                 </form>
                 <div id="search_results">
                 </div>
+                <button onclick="window.location.href='/show_all_movies'">All movies</button>
             {% endblock %}</header>
         <main id = "main">{% block main %}Default main {% endblock %}</main>
         <footer id = "footer">{% block footer %}Default footer{% endblock %}</footer>
+
+        <script src = "{{url_for('static', filename='script.js')}}"></script>
     </body>
 </html>
