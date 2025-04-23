@@ -297,15 +297,10 @@ def actor_site(actor_id):
         """
 
         cursor = connection.cursor()
-        #cursor.execute(query, (actor_id,))
-        #actor_movies = cursor.fetchall()
+        cursor.execute(query, (actor_id,))
+        actor_movies = cursor.fetchall()
 
-        actor_movies = [
-            ("Snow White", "Gal", "Gadot", "1985-30-04", 178, "Witch", 1),
-            ("Justice League", "Gal", "Gadot", "1985-30-04", 178, "Wonder Woman", 2)
-        ]
-
-        print("DEBUG actor_movies:", actor_movies)  # <-- add this
+        print("DEBUG actor_movies:", actor_movies)
 
         cursor.close()
         connection.close()
@@ -336,15 +331,10 @@ def director_site(director_id):
         """
 
         cursor = connection.cursor()
-        #cursor.execute(query, (director_id,))
-        #director_movies = cursor.fetchall()
+        cursor.execute(query, (director_id,))
+        director_movies = cursor.fetchall()
 
-        director_movies = [
-            ("Ready Player One", "Steven", "Spielberg", "1946-18-12", 172, 1),
-            ("Jaws", "Steven", "Spielberg", "1946-18-12", 172, 2)
-        ]
-
-        print("DEBUG director_movies:", director_movies)  # <-- add this
+        print("DEBUG director_movies:", director_movies)
 
         cursor.close()
         connection.close()
