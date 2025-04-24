@@ -3,8 +3,8 @@
 {% block main %}
 
 {% for movie in movies %}
-<div id="all_movies_movie_div">
-    <h3>{{movie[1]}} {{movie[2].year}} Score: {{movie[3]}}</h3>
+<div id="all_movies_movie_div" >
+    <h3> <a href="/movie_site/{{ movie[0] }}">{{movie[1]}}</a> {{movie[2].year}} Score: {{movie[3]}}</h3>
 </div>
 <br>
 {% else %}

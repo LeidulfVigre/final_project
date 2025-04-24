@@ -235,41 +235,64 @@ def handle_review_rating_both():
         print("BLIR KJØRT HER BLIR KJØRT HER")
         return render_template("partials/sorting_result_user_page.html", many_attributes=many_attributes, reviews_and_ratings=data, owner=owner)
 
-@app.route("/write_review", methods=["POST", "GET"])
-def write_review():
+@app.route("/write_review/<movie_id>", methods=["POST", "GET"])
+def write_review(movie_id):
     if request.method == "GET":
-        return render_template("write_review.html", review_text="")
+        return render_template("write_review.html", movie_id=movie_id)
     elif request.method == "POST":
+        review_title = request.form.get("review_title")
         review_text = request.form.get("review_text")
-        user_id = session.get("id")
-        movie_id = 1 # Just a placeholder for now
-        rating_score = 4 # Could be a form field later
-        review_date = datetime.now()
+        review_rating = int(request.form.get("rating_of_movie"))
+        user_id = session["user_info"]["user_id"]
+        review_id = functions.generate_new_review_id()
+        review_date = datetime.datetime.now()
 
         connection = db.get_connection()
 
         if not connection:
             return "Error connecting to database", 500
-
         cursor = connection.cursor()
-        cursor.execute(
-            "INSERT INTO Rating (Rating_ID, Rating_Score, Rating_Date, User_ID, Movie_ID) VALUES (NULL, %s, %s, %s, %s)",
-            (rating_score, review_date, user_id, movie_id)
-        )
-        connection.commit()
-        rating_id = cursor.lastrowid
 
-        # Insert review using the rating_id we just got
-        cursor.execute(
-            "INSERT INTO Review (Review_ID, Likes, Dislikes, Review_Text, Review_Date, User_ID, Movie_ID, Rating_ID) VALUES (NULL, 0, 0, %s, %s, %s, %s, %s)",
-            (review_text, review_date, user_id, movie_id, rating_id)
-        )
+        # We first have to make a query to rating to check if the user already have rated the movie
+        query_rating_check = "SELECT Rating_ID, Rating_Score FROM Rating WHERE Movie_ID = %s;"
+        query_update_rating = ""
+        cursor.execute(query_rating_check, (movie_id,))
+        rating_data = cursor.fetchone()
+
+        if rating_data:
+            rating_id = rating_data[0]
+            query_update_rating = "UPDATE Rating SET Rating_Score = %s, Rating_Date = %s WHERE Rating_ID = %s;"
+
+            try:
+                cursor.execute(query_update_rating, (review_rating, review_date, rating_id))
+                connection.commit()
+            except Exception as e:
+                connection.rollback()
+                print("Something went wrong:", e)
+                return "An error occured during update: ", 500
+        else:
+            rating_id = functions.generate_new_rating_id()
+            query_update_rating = "INSERT INTO Rating VALUES %s, %s, %s, %s, %s;"
+
+
+
+            try:
+                cursor.execute(query_update_rating, (rating_id, review_rating, review_date, user_id, movie_id))
+                connection.commit()
+            except Exception as e:
+                connection.rollback()
+                print("Something went wrong:", e)
+                return "An error occured during update: ", 500
+        
+        query_review = "INSERT INTO Review VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+
+        cursor.execute(query_review, (review_id, 0, 0, review_text, review_date, user_id, movie_id, rating_id, review_title)) 
         connection.commit()
 
         cursor.close()
         connection.close()
 
-        return "Review submitted!"
+        return redirect(url_for("movie_site", movie_id=movie_id))
     
 @app.route("/actor_site/<int:actor_id>", methods=["GET"])
 def actor_site(actor_id):
@@ -371,15 +394,12 @@ def movie_site(movie_id):
         actor_data = functions.get_actors_in_movie_query(movie_id)
         director_data = functions.get_directors_in_movie_query(movie_id)
 
-        #beskjed til meg selv:
-        # Husk at en enkel måte å få med seg group by på er å lage en film fremside som lister opp alle filmene. 
-        # her kan man altså bruke group by movie id og finne average av filmene!!!
+        print("Review data her: ", review_data)
        
         # Query information: Simple check to check if the user has reviewed the movie before
         rating_information = """
-            SELECT User_ID FROM Rating WHERE Movie_ID = %s AND User_ID = %s; 
+            SELECT User_ID, Rating_Score FROM Rating WHERE Movie_ID = %s AND User_ID = %s; 
         """
-
         connection = db.get_connection()
 
         if not connection:
@@ -391,10 +411,13 @@ def movie_site(movie_id):
         cursor.close()
         connection.close()
 
+        user_score = 0
+
         if rating_information_data:
+            user_score = rating_information_data[1]
             has_reviewed_movie = True
 
-        return render_template("movie_site.html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id) # IKKE FERDIG HER ENDA GJØR FERDIG!!
+        return render_template("movie_site.html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id, user_score=user_score) # IKKE FERDIG HER ENDA GJØR FERDIG!!
     
 
 @app.route("/rate_movie", methods=["POST"])
@@ -410,8 +433,9 @@ def rate_movie():
             rating_id = functions.generate_new_rating_id()
             rating_score = int(value)
             current_date = datetime.datetime.now()
-            user_id = session["user_info"]["user_info"]
+            user_id = session["user_info"]["user_id"]
 
+            print("KOMMER FAKTISK SÅ LANGT")
             query = """
                 INSERT INTO Rating VALUES (%s, %s, %s, %s, %s); 
             """

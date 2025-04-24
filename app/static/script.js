@@ -64,37 +64,43 @@ async function search_for_movie(){
     const search_results = document.getElementById("search_results");
     const search_bar     = document.getElementById("search_bar");
     movie_name = search_bar.value;
-    console.log("search for movie blir kjørt!");
-    try{
-        let url = "/search?movie_name=" + movie_name;
-        const response = await fetch(url);
-        if (response.status !== 200){
-            console.log("Problem getting data from server: ", response.status);
-        }else{
-            const html = await response.text()
+    console.log("Search bar value her: ", search_bar.value);
+    if(search_bar.value === ""){
+        search_results.innerHTML = ""
+    }else{
+        try{
+            let url = "/search?movie_name=" + movie_name;
+            const response = await fetch(url);
+            if (response.status !== 200){
+                console.log("Problem getting data from server: ", response.status);
+            }else{
+                const html = await response.text()
 
-            search_results.innerHTML = html;
+                search_results.innerHTML = html;
+            }
+        }catch(error){
+            console.log("Problem connecting to server: ", error);
         }
-    }catch(error){
-        console.log("Problem connecting to server: ", error);
     }
+
 }
 
 async function change_button_to_dropdown(movie_id){
     button_area = document.getElementById("button_area");
     write_review_button = document.getElementById("write_review_button");
     rating_button = document.getElementById("rating_button");
-
     button_area.removeChild(rating_button);
     
     const dropdown_menu = document.createElement("select");
     dropdown_menu.id = "dropdown_menu";
-
-    for(var i; i < 6; i++){
+    console.log("KOMMER SÅ LANGT");
+    
+    for(let i = 0; i < 6; i++){
+        console.log("blir kjørt!!!")
         let option = document.createElement("option");
         option.textContent = ""+(i+1);
         option.value = ""+(i+1);
-        dropdown.appendChild(option);
+        dropdown_menu.appendChild(option);
     }
 
     dropdown_menu.addEventListener("change", async function (){
@@ -110,7 +116,8 @@ async function change_button_to_dropdown(movie_id){
                 body: JSON.stringify({selected_value:value, movie:movie_id})
             });
 
-            if(response !== 200){
+            if(response.status !== 200){
+                console.log("BLIR KJØRT AV EN ELLER ANNEN GRUNN");
                 console.log("Problem sending data to server: ", response.status);
             }else{
                 const button_area = document.getElementById("button_area");

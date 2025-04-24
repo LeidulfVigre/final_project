@@ -58,6 +58,26 @@ def generate_new_rating_id():
             connection.close()
     
     return new_id
+
+# Function for generating a new review ID:
+def generate_new_review_id():
+    valid_id = False
+    new_id = -1
+
+    while not valid_id:
+        new_id = random.randint(1000000, 9999999)
+
+        query = "SELECT Review_ID FROM Review WHERE Review_ID = %s;"
+        connection = db.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(query, (new_id,))
+        review_data = cursor.fetchone()
+
+        if not review_data:
+            valid_id = True
+            cursor.close()
+            connection.close()
+    return new_id
     
 # Function for getting relevant query from 
 def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, select_genre):
@@ -158,7 +178,7 @@ def get_reviews_from_movie_query(movie_id):
             u.Username
         FROM Review rv
         JOIN Rating r
-        ON rv.Review_ID = r.Movie_ID
+        ON rv.Rating_ID = r.Rating_ID
         JOIN User u
         ON rv.User_ID = u.User_ID
         WHERE rv.Movie_ID = %s;
@@ -201,7 +221,7 @@ def get_movie_data_query(movie_id):
     else:
         cursor = connection.cursor()
         cursor.execute(aggregation_query, (movie_id,))
-        review_data = cursor.fetchall()
+        review_data = cursor.fetchone()
         cursor.close()
         connection.close()
         return review_data

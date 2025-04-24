@@ -8,7 +8,7 @@
     <body>
         <header id = "header">
             {% block header %}
-                <button class = "basic_button" id = "home_button">LSMDb</button>
+                <button onclick="window.location.href='/'">Home page</button>
                 <form action="movie_site" method="post">
                     <label for="movie_name">Search for movie:</label>
                     <input type="text" name="movie_name" maxlength="50" id="search_bar" oninput="search_for_movie()">
@@ -16,7 +16,6 @@
                 <div id="search_results">
                 </div>
                 <button onclick="window.location.href='/show_all_movies'">All movies</button>
-                <button onclick="window.location.href='/'">Home page</button>
                 <button onclick="window.location.href='/log_out'">Log out</button>
             {% endblock %}</header>
         <main id = "main">{% block main %}Default main {% endblock %}</main>

@@ -12,14 +12,15 @@
     <h4>{{movie_data[8]}}</h4>
 </div>
 <div id="synopsis_area">
+    <h4>Synopsis:</h4>
     <p>{{movie_data[6]}}</p>
 </div>
 <div id="button_area">
     <button id="write_review_button" onclick="window.location.href='/write_review/{{movie_data[0]}}'">Write Review</button> 
-    {% if has_reviewed_movie %}
+    {% if not has_reviewed_movie %}
     <button id="rating_button" onclick="change_button_to_dropdown('{{movie_data[0]}}')">Rate Movie</button> 
     {% else %}
-    <p>Movie already rated</p>
+    <p>You have rated the movie: {{ user_score }}</p>
     {% endif %}
 </div>
 
@@ -36,7 +37,7 @@
     <h3>Actors:</h3>
     <ul>
     {% for actor in actor_data %}
-    <li><h4><a href="/director_site/{{actor[0]}}">{{ actor[1] }} {{ actor[2] }}</a></h4></li>
+    <li><h4><a href="/actor_site/{{actor[0]}}">{{ actor[1] }} {{ actor[2] }}</a></h4></li>
     {% endfor %}
     </ul>
 </div>
@@ -52,10 +53,10 @@
 
 {% for review in review_data %}
     <div class="review_div">
-    <h3>By: <a href="/user_page/{{review[8]}}">{{review[8]}}</a></h3>
+    <h3>By: <a href="/userPage/{{review[8]}}">{{review[8]}}</a></h3>
     <h4>{{review[5]}}</h4>
     {% if review[7] == current_user_id %}
-    <button onlcick="window.location.href='/edit_review/{{review[0]}}'">Edit review</button> <!--IKKE FERDIG MED DENNE KNAPPEN ENDA!! GJØR DEN FERDIG!!!-->
+    <button onclick ="window.location.href='/edit_review/{{review[0]}}'">Edit review</button> <!--IKKE FERDIG MED DENNE KNAPPEN ENDA!! GJØR DEN FERDIG!!!-->
     {% endif %}
     <h4>{{review[6]}}</h4>
     <h3>{{review[4]}}</h3>
