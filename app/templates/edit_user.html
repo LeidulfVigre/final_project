@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main %}
-<form action="/edit_user" method="post">
+<form action="/edit_user/{{ old_username }}" method="post">
 <label for="username">New Username: </label>
 <input type="text" name="username" id="username" value="{{old_username}}"><br>
 

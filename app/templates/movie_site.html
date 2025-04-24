@@ -16,7 +16,11 @@
     <p>{{movie_data[6]}}</p>
 </div>
 <div id="button_area">
+    {% if not has_written_review %}
     <button id="write_review_button" onclick="window.location.href='/write_review/{{movie_data[0]}}'">Write Review</button> 
+    {% else %}
+    <p>You have already reated the movie before!</p>
+    {% endif %}
     {% if not has_reviewed_movie %}
     <button id="rating_button" onclick="change_button_to_dropdown('{{movie_data[0]}}')">Rate Movie</button> 
     {% else %}

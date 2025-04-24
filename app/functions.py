@@ -149,15 +149,15 @@ def get_review_rating_both(choose_review_rating, order_by_date, order_by_score, 
         sort_parts.append("r.Rating_Date DESC")
 
     if order_by_score == "1":
-        sort_parts.append("r.Rating_Score DESC")
-    elif order_by_score == "2":
         sort_parts.append("r.Rating_Score ASC")
+    elif order_by_score == "2":
+        sort_parts.append("r.Rating_Score DESC")
 
     if sort_parts:
         query += " ORDER BY " + ", ".join(sort_parts)
 
     query += ";"
-    
+    print("QUERY HER: ", query)
     return query
 
 # Function for getting the relevant query for a specific movie

@@ -150,7 +150,7 @@ async function delete_review(review_id){
         data = await response.json()
 
         if(data.success){
-            window.location.href="/user_page/"+data.username;
+            window.location.href="/userPage/"+data.username;
         }else{
             console.log("Error during review deletion");
         }

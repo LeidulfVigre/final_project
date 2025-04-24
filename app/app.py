@@ -10,7 +10,6 @@ app.secret_key = "monkey"
 @app.route("/", methods=["GET"])
 def index():
     if request.method == "GET":
-
         if session:
             return redirect(url_for("userPage", username=session["user_info"]["username"]))
         else:
@@ -70,6 +69,7 @@ def userPage(username):
         owner = False
         
         if username == session["user_info"]["username"]:
+            print("BLIR KJØRT!!!")
             owner = True
             user_id = session["user_info"]["user_id"]
         else:
@@ -198,6 +198,8 @@ def handle_review_rating_both():
         order_by_score = request.args.get("order_by_score")
         select_genre = request.args.get("select_genre")
 
+        user_id = session["user_info"]["user_id"]
+
         print(username, choose_review_rating, order_by_date, order_by_score, select_genre)
 
         username_session = session["user_info"]["username"]
@@ -215,18 +217,24 @@ def handle_review_rating_both():
         cursor = connection.cursor()
 
         if select_genre != "1":
-            data = cursor.execute(query, (username, select_genre))
+            data = cursor.execute(query, (user_id, select_genre))
         else:
-            data = cursor.execute(query, (username,))
+            data = cursor.execute(query, (user_id,))
 
         data = cursor.fetchall()
+        print("DATA HER:", data)
+        print("TYPE OF DATA HER: ", type(data[0]))
+        print("LEN OF DATA HER: ", len(data))
         cursor.close()
         connection.close()
+
         if len(data) > 0:
-            if len(data[0] == 4):
+            if len(data[0]) == 5:
                 many_attributes = False
-            elif len(data[0] == 8):
+            elif len(data[0]) == 10:
                 many_attributes = True
+            else:
+                many_attributes = False
         else:
             many_attributes = False
 
@@ -254,12 +262,13 @@ def write_review(movie_id):
         cursor = connection.cursor()
 
         # We first have to make a query to rating to check if the user already have rated the movie
-        query_rating_check = "SELECT Rating_ID, Rating_Score FROM Rating WHERE Movie_ID = %s;"
+        query_rating_check = "SELECT Rating_ID, Rating_Score FROM Rating WHERE Movie_ID = %s AND User_ID = %s;"
         query_update_rating = ""
-        cursor.execute(query_rating_check, (movie_id,))
+        cursor.execute(query_rating_check, (movie_id, user_id))
         rating_data = cursor.fetchone()
-
+       # print("KOMMER SÅ LANGT")
         if rating_data:
+            print("GÅR INN HER")
             rating_id = rating_data[0]
             query_update_rating = "UPDATE Rating SET Rating_Score = %s, Rating_Date = %s WHERE Rating_ID = %s;"
 
@@ -272,15 +281,17 @@ def write_review(movie_id):
                 return "An error occured during update: ", 500
         else:
             rating_id = functions.generate_new_rating_id()
-            query_update_rating = "INSERT INTO Rating VALUES %s, %s, %s, %s, %s;"
+            query_update_rating = "INSERT INTO Rating VALUES (%s, %s, %s, %s, %s);"
 
-
+            print("Jeg blir kjørt det går denne veien")
+            print("Data i rating query: ", rating_id, review_rating, review_date, user_id, movie_id)
 
             try:
                 cursor.execute(query_update_rating, (rating_id, review_rating, review_date, user_id, movie_id))
                 connection.commit()
             except Exception as e:
                 connection.rollback()
+                print("BLIR KJØRT!")
                 print("Something went wrong:", e)
                 return "An error occured during update: ", 500
         
@@ -387,6 +398,8 @@ def search():
 def movie_site(movie_id):
     if request.method == "GET":
         has_reviewed_movie = False
+        has_written_review = False
+
         user_id = session["user_info"]["user_id"]
         
         movie_data = functions.get_movie_data_query(movie_id) 
@@ -396,10 +409,15 @@ def movie_site(movie_id):
 
         print("Review data her: ", review_data)
        
-        # Query information: Simple check to check if the user has reviewed the movie before
+        # Query information: Simple check to check if the user has rated the movie before
         rating_information = """
             SELECT User_ID, Rating_Score FROM Rating WHERE Movie_ID = %s AND User_ID = %s; 
         """
+        # Query information: Simple check to check if the user has reviewed the movie before
+        review_information = """
+            SELECT User_ID FROM Review WHERE Movie_ID = %s AND User_ID = %s;
+        """
+
         connection = db.get_connection()
 
         if not connection:
@@ -408,6 +426,10 @@ def movie_site(movie_id):
         cursor = connection.cursor()
         cursor.execute(rating_information, (movie_id, user_id))
         rating_information_data = cursor.fetchone()
+
+        cursor.execute(review_information, (movie_id, user_id))
+        review_information_data = cursor.fetchone()
+
         cursor.close()
         connection.close()
 
@@ -416,8 +438,10 @@ def movie_site(movie_id):
         if rating_information_data:
             user_score = rating_information_data[1]
             has_reviewed_movie = True
+        if review_information_data:
+            has_written_review = True
 
-        return render_template("movie_site.html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id, user_score=user_score) # IKKE FERDIG HER ENDA GJØR FERDIG!!
+        return render_template("movie_site.html", movie_data=movie_data, director_data=director_data, actor_data=actor_data, has_reviewed_movie=has_reviewed_movie, review_data=review_data, current_user_id=user_id, user_score=user_score, has_written_review=has_written_review) # IKKE FERDIG HER ENDA GJØR FERDIG!!
     
 
 @app.route("/rate_movie", methods=["POST"])
@@ -472,8 +496,10 @@ def edit_review(review_id):
         if not review_data:
             return "An error has occured. Invalid data: ", 403
         
-        old_title = review_data[8]
-        old_review = review_data[3]
+        print("review data her: ", review_data)
+
+        old_title = review_data[1]
+        old_review = review_data[0]
 
         return render_template("edit_review.html", review_id=review_id,old_title=old_title,old_review=old_review)
     elif request.method == "POST":
@@ -570,7 +596,7 @@ def edit_user(user_name):
         firstname = user_data[0]
         lastname = user_data[1]
         
-        return render_template("edit_user.html", old_username=user_name, old_firstname=firstname, old_lastname=lastname, username_taken=False)
+        return render_template("edit_user.html", old_username=user_name, old_firstname=firstname, old_lastname=lastname, username_taken=False)    
     elif request.method == "POST":
         new_username = request.form.get("username")
         new_firstname = request.form.get("firstname")
@@ -593,31 +619,37 @@ def edit_user(user_name):
         user_data = cursor.fetchone()
 
         if user_data:
-            user_data_query = "SELECT Firstname, Lastname FROM User WHERE Username = %s;"
+            if user_data[0] != session["user_info"]["user_id"]:
+                user_data_query = "SELECT First_Name, Last_Name FROM User WHERE Username = %s;"
 
-            cursor = connection.cursor()
-            cursor.execute(user_data_query, (user_name,))
-            user_data = cursor.fetchone()
-            cursor.close()
-            connection.close()
+                cursor = connection.cursor()
+                cursor.execute(user_data_query, (user_name,))
+                user_data = cursor.fetchone()
+                cursor.close()
+                connection.close()
 
-            firstname = user_data[0]
-            lastname = user_data[1]
+                firstname = user_data[0]
+                lastname = user_data[1]
 
-            return render_template("edit_user.html",old_username=session["user_info"]["username"], old_firstname=firstname, old_lastname=lastname, username_taken=True)
+                return render_template("edit_user.html",old_username=session["user_info"]["username"], old_firstname=firstname, old_lastname=lastname, username_taken=True)
         
         update_user_info_query = "UPDATE User SET Username = %s, First_Name = %s, Last_Name = %s, Password_Hash = %s WHERE User_ID = %s;"
 
         try:
             cursor.execute(update_user_info_query, (new_username, new_firstname, new_lastname, new_hashed_password, user_id))
-            cursor.commit()
+            connection.commit()
         except Exception as e:
             connection.rollback()
             print("Something went wrong:", e)
+            print("Jeg blir kjørt. En error skjedde")
             return "An error occured during update: ", 500
         finally:
             cursor.close()
             connection.close()
+
+        session["user_info"]["username"] = new_username
+        session["user_info"]["password"] = new_password
+        session.modified = True
         
         return redirect(url_for("userPage", username=session["user_info"]["username"]))
     
