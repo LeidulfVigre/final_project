@@ -95,6 +95,10 @@ async function change_button_to_dropdown(movie_id){
     dropdown_menu.id = "dropdown_menu";
     console.log("KOMMER SÅ LANGT");
     
+    let dummy_option = document.createElement("option");
+    dummy_option.textContent = "Choose a rating"
+    dropdown_menu.appendChild(dummy_option); 
+
     for(let i = 0; i < 6; i++){
         console.log("blir kjørt!!!")
         let option = document.createElement("option");

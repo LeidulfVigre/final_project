@@ -57,16 +57,30 @@
 
 {% for review in review_data %}
     <div class="review_div">
-    <h3>By: <a href="/userPage/{{review[8]}}">{{review[8]}}</a></h3>
-    <h4>{{review[5]}}</h4>
+        <div class="review_header">
+            <div class="review_user">
+                By: <a href="/userPage/{{review[8]}}">{{review[8]}}</a>
+            </div>
+            <div class="review_score">
+                <h4>{{review[6]}}/6</h4>
+            </div>
+        </div>
+    
+        <h4>{{review[5]}}</h4>
+    
     {% if review[7] == current_user_id %}
     <button onclick ="window.location.href='/edit_review/{{review[0]}}'">Edit review</button> <!--IKKE FERDIG MED DENNE KNAPPEN ENDA!! GJØR DEN FERDIG!!!-->
     {% endif %}
-    <h4>{{review[6]}}</h4>
-    <h3>{{review[4]}}</h3>
-    <p onclick="">Likes: {{review[1]}}</p>
-    <p>Dislikes: {{review[2]}}</p>
-    <p>{{review[3]}}</p>
+    
+    <div class="review_text">{{review[3]}}</div>
+    
+    <div class="review_stats">
+        <h3>Date: {{review[4]}}</h3>
+        <p onclick="">Likes: {{review[1]}}</p>
+        <p>Dislikes: {{review[2]}}</p>
+    </div>
+    
+    
     </div>
 {% else %}
     <h4>There are no reviews of this movie yet!</h4>

@@ -2,19 +2,35 @@
 {% if many_attributes %}
 
     {% for review_rating in reviews_and_ratings %}
-    <div class="review_and_ratings">
-        <h3 class="content_title"><a href="/movie_site/{{review_rating[1]}}">{{review_rating[0]}}</a> Date: {{review_rating[9]}} Score: {{review_rating[8]}}</h3>
+    <div class="review_div">
+        <div class="review_header">
+            <div class="review_user">
+                Movie: <a href="/movie_site/{{review_rating[1]}}">{{review_rating[0]}}</a>
+            </div>
+        </div>
+        <div class="review_score">
+            Score: {{review_rating[8]}} 
+        </div>
+
+        {% if review_rating[3] %}
+            <p>{{ review_rating[3]}}</p>
+            <div class="review_text">{{review_rating[6]}}</div>
+        {% endif %}
+
         {% if owner and review_rating[3] %}
         <button onclick="window.location.href='/edit_review/{{review_rating[2]}}'">Edit</button>
         {% endif %}
-        {% if review_rating[3] %}
-        <h2>{{ review_rating[3]}}</h2>
-        <h3>Likes: {{review_rating[4]}} Dislikes: {{review_rating[5]}}</h3>
-        <p>{{review_rating[6]}}</p>
-        {% endif %}
+
+        <div class="review_stats">
+            {% if review_rating[3] %}
+            <p>Likes: {{review_rating[4]}}</p> 
+            <p>Dislikes: {{review_rating[5]}}</p>
+            {% endif %}
+            <p>Date: {{review_rating[9]}}</p> 
+        </div>
     </div>
     {% else %}
-    <div class="review_and_ratings">
+    <div>
         <p>No reviews or ratings yet. Get started!</p>
     </div>
     {% endfor %}
@@ -22,11 +38,21 @@
 {% else %}
 
     {% for review_rating in reviews_and_ratings %}
-    <div class="review_and_ratings">
-        <h3 class="content_title"><a href="/movie_site/{{review_rating[1]}}">{{review_rating[0]}}</a> Date: {{review_rating[4]}} Score: {{review_rating[3]}} </h3>
+    <div class="review_div">
+        <div class="review_header">
+            <div class="review_user">
+                <a href="/movie_site/{{review_rating[1]}}">{{review_rating[0]}}</a>
+            </div>
+        </div>
+        <div class="review_score">
+            Score: {{review_rating[3]}} 
+        </div>
+        <div class="review_stats">
+            Date: {{review_rating[4]}} 
+        </div>
     </div>
     {% else %}
-    <div class="review_and_ratings">
+    <div>
         <p>No reviews or ratings yet. Get started!</p>
     </div>
     {% endfor %}

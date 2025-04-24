@@ -1,0 +1,128 @@
+/* static/styles.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h3, h4 {
+    margin: 10px 0;
+}
+
+a {
+    text-decoration: none;
+    color: #0077cc;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#movie_details_area,
+#synopsis_area,
+#button_area,
+#directors,
+#Actors {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+#synopsis_area p {
+    line-height: 1.6;
+}
+
+button {
+    background-color: #0077cc;
+    color: white;
+    padding: 10px 18px;
+    margin: 5px 10px 5px 0;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #005fa3;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+.review_div {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-left: 5px solid #0077cc;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review_div .review_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.review_div .review_user {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.review_div .review_score {
+    font-size: 1.2em;
+    color: #0077cc;
+    font-weight: bold;
+}
+
+.review_div .review_text {
+    font-size: 1em;
+    line-height: 1.5;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+}
+
+.review_div .review_stats {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.review_div button {
+    align-self: flex-start;
+}
+
+.review_div h3, .review_div h4, .review_div p {
+    margin: 5px 0;
+}
+
+@media (max-width: 600px) {
+    button {
+        width: 100%;
+    }
+
+    #movie_details_area,
+    #synopsis_area,
+    #button_area,
+    #directors,
+    #Actors,
+    .review_div {
+        margin: 10px;
+        padding: 10px;
+    }
+}

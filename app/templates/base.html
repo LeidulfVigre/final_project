@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>App</title>
         <!--Legg til javascript fil her etterpå-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
         <header id = "header">
@@ -17,6 +18,8 @@
                 </div>
                 <button onclick="window.location.href='/show_all_movies'">All movies</button>
                 <button onclick="window.location.href='/log_out'">Log out</button>
+                <br>
+                <br>
             {% endblock %}</header>
         <main id = "main">{% block main %}Default main {% endblock %}</main>
         <footer id = "footer">{% block footer %}Default footer{% endblock %}</footer>
