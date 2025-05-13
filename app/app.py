@@ -223,7 +223,7 @@ def handle_review_rating_both():
 
         data = cursor.fetchall()
         print("DATA HER:", data)
-        print("TYPE OF DATA HER: ", type(data[0]))
+        #print("TYPE OF DATA HER: ", type(data[0]))
         print("LEN OF DATA HER: ", len(data))
         cursor.close()
         connection.close()
